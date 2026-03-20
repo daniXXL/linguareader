@@ -139,14 +139,14 @@ function getStreak(history){if(!history||!history.length)return 0;const sorted=[
 // ── Firestore helpers ──
 function userDoc(p){return db.collection('users').doc(auth.currentUser.uid).collection('data').doc(p)}
 function textsCol(){return db.collection('users').doc(auth.currentUser.uid).collection('texts')}
-let saveT=null;
-function dbSave(k,d){clearTimeout(saveT);saveT=setTimeout(()=>{userDoc(k).set(d,{merge:true}).catch(e=>console.error('DB:',e))},500)}
+let saveT={};
+function dbSave(k,d,merge){clearTimeout(saveT[k]);saveT[k]=setTimeout(()=>{userDoc(k).set(d,merge?{merge:true}:{}).catch(e=>console.error('DB:',e))},500)}
 function saveLib(){dbSave('library',{items:S.library})}
-function saveVoc(){dbSave('vocabulary',{entries:S.vocabulary})}
-function saveFc(){dbSave('flashcards',{entries:S.flashcards})}
-function saveCa(){dbSave('cache',{entries:S.cache})}
-function savePrefs(){dbSave('prefs',{darkMode:S.darkMode,fontSize:S.fontSize})}
-function saveStreak(){dbSave('streak',{history:S.streakHistory})}
+function saveVoc(){dbSave('vocabulary',{entries:S.vocabulary},false)}
+function saveFc(){dbSave('flashcards',{entries:S.flashcards},false)}
+function saveCa(){dbSave('cache',{entries:S.cache},true)}
+function savePrefs(){dbSave('prefs',{darkMode:S.darkMode,fontSize:S.fontSize},true)}
+function saveStreak(){dbSave('streak',{history:S.streakHistory},true)}
 async function saveTxt(id,text){await textsCol().doc(id).set({content:text})}
 async function delTxt(id){await textsCol().doc(id).delete().catch(()=>{})}
 
