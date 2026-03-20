@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#C4563A">
 <title>LinguaReader</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23C4563A'/%3E%3Cstop offset='100%25' stop-color='%23E8847C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M16 48V18a6 6 0 016-6h22v36H22a6 6 0 000 12h22' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M28 12v18l5-4 5 4V12' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='46' cy='44' r='8' fill='white' fill-opacity='.15'/%3E%3Ctext x='46' y='48' text-anchor='middle' font-family='sans-serif' font-size='11' font-weight='bold' fill='white'%3EAa%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23C4563A'/%3E%3Cstop offset='100%25' stop-color='%23E8847C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M16 48V18a6 6 0 016-6h22v36H22a6 6 0 000 12h22' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M28 12v18l5-4 5 4V12' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='46' cy='44' r='8' fill='white' fill-opacity='.15'/%3E%3Ctext x='46' y='48' text-anchor='middle' font-family='sans-serif' font-size='11' font-weight='bold' fill='white'%3EAa%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -41,8 +43,9 @@ textarea.input{resize:vertical;min-height:120px;line-height:1.6}
 .nav-btn{border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;transition:all .2s;color:var(--text3);font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500}
 .nav-btn.active{color:var(--accent);background:rgba(196,86,58,.1)}
 .nav-btn:hover{color:var(--accent)}
-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background .3s}
-main{flex:1;padding:20px;max-width:900px;margin:0 auto;width:100%;padding-bottom:40px}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;transition:background .3s}
+main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%;padding-bottom:90px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,6px);z-index:40;transition:background .3s}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 @media(min-width:768px){.overlay{align-items:center}}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:70;animation:toastIn .3s ease;max-width:90%;text-align:center;color:#fff}
@@ -147,18 +150,20 @@ function saveFc(){dbSave('flashcards',{entries:S.flashcards},false)}
 function saveCa(){dbSave('cache',{entries:S.cache},true)}
 function savePrefs(){dbSave('prefs',{darkMode:S.darkMode,fontSize:S.fontSize},true)}
 function saveStreak(){dbSave('streak',{history:S.streakHistory},true)}
+function savePositions(){dbSave('positions',{entries:S.readingPositions},true)}
 async function saveTxt(id,text){await textsCol().doc(id).set({content:text})}
 async function delTxt(id){await textsCol().doc(id).delete().catch(()=>{})}
 
-async function loadAll(){try{const[lib,voc,fc,ca,prefs,strk]=await Promise.all([userDoc('library').get(),userDoc('vocabulary').get(),userDoc('flashcards').get(),userDoc('cache').get(),userDoc('prefs').get(),userDoc('streak').get()]);
+async function loadAll(){try{const[lib,voc,fc,ca,prefs,strk,pos]=await Promise.all([userDoc('library').get(),userDoc('vocabulary').get(),userDoc('flashcards').get(),userDoc('cache').get(),userDoc('prefs').get(),userDoc('streak').get(),userDoc('positions').get()]);
 S.library=lib.exists?lib.data().items||[]:[];S.vocabulary=voc.exists?voc.data().entries||{}:{};S.flashcards=fc.exists?fc.data().entries||{}:{};S.cache=ca.exists?ca.data().entries||{}:{};
 if(prefs.exists){S.darkMode=prefs.data().darkMode||false;S.fontSize=prefs.data().fontSize||17}
 if(strk.exists)S.streakHistory=strk.data().history||[];
+if(pos.exists)S.readingPositions=pos.data().entries||{};
 S.texts={};const ts=await textsCol().get();ts.forEach(d=>{S.texts[d.id]=d.data().content});
 const b=S.library.length;S.library=S.library.filter(i=>S.texts[i.id]);if(S.library.length<b)saveLib()}catch(e){console.error('Load:',e)}}
 
 // ── STATE ──
-let S={authView:'login',user:null,authError:'',authLoading:false,view:'library',library:[],texts:{},vocabulary:{},flashcards:{},cache:{},currentTextId:null,popup:null,translating:false,flashcardDeck:[],fcIndex:0,fcFlipped:false,searchTerm:'',vocabFilter:'all',vocabLangFilter:'all',editingNote:null,noteText:'',editingWord:null,wordText:'',editingTranslation:null,translationText:'',fcMode:'due',fcLangFilter:'all',confirmAction:null,toast:null,loading:true,darkMode:false,fontSize:17,showPasteModal:false,pasteText:'',pasteLang:'en',pasteTitle:'',streakHistory:[],showTagModal:null,tagInput:'',vocabGroupBy:'none'};
+let S={authView:'login',user:null,authError:'',authLoading:false,view:'library',library:[],texts:{},vocabulary:{},flashcards:{},cache:{},currentTextId:null,popup:null,translating:false,flashcardDeck:[],fcIndex:0,fcFlipped:false,searchTerm:'',vocabFilter:'all',vocabLangFilter:'all',editingNote:null,noteText:'',editingWord:null,wordText:'',editingTranslation:null,translationText:'',fcMode:'due',fcLangFilter:'all',confirmAction:null,toast:null,loading:true,darkMode:false,fontSize:17,showPasteModal:false,pasteText:'',pasteLang:'en',pasteTitle:'',streakHistory:[],showTagModal:null,tagInput:'',vocabGroupBy:'none',readingPositions:{}};
 
 function setState(u){Object.assign(S,u);if(u.darkMode!==undefined){document.body.classList.toggle('dark',S.darkMode);savePrefs()}render()}
 function showToast(m,t='success'){S.toast={message:m,type:t};render();setTimeout(()=>{S.toast=null;render()},3000)}
@@ -167,6 +172,7 @@ auth.onAuthStateChanged(async u=>{if(u){S.user=u;S.loading=true;render();await l
 
 async function doRegister(e,p,n){setState({authLoading:true,authError:''});try{const c=await auth.createUserWithEmailAndPassword(e,p);await c.user.updateProfile({displayName:n});await userDoc('profile').set({name:n,email:e})}catch(e){const m={'auth/email-already-in-use':'Email ya registrado','auth/weak-password':'Mínimo 6 caracteres','auth/invalid-email':'Email inválido'};setState({authError:m[e.code]||e.message,authLoading:false})}}
 async function doLogin(e,p){setState({authLoading:true,authError:''});try{await auth.signInWithEmailAndPassword(e,p)}catch(e){const m={'auth/user-not-found':'No existe cuenta','auth/wrong-password':'Contraseña incorrecta','auth/invalid-email':'Email inválido','auth/invalid-credential':'Email o contraseña incorrectos'};setState({authError:m[e.code]||e.message,authLoading:false})}}
+async function doResetPassword(email){if(!email||!email.trim()){setState({authError:'Escribe tu email primero'});return}setState({authLoading:true,authError:''});try{await auth.sendPasswordResetEmail(email.trim());setState({authLoading:false,authError:''});showToast('Se envió un enlace de recuperación a '+email.trim())}catch(e){const m={'auth/user-not-found':'No existe cuenta con ese email','auth/invalid-email':'Email inválido'};setState({authError:m[e.code]||e.message,authLoading:false})}}
 function doLogout(){auth.signOut();Object.assign(S,{view:'library',library:[],texts:{},vocabulary:{},flashcards:{},cache:{},currentTextId:null,popup:null})}
 
 async function handleFile(e){const f=e.target?.files?.[0];if(!f)return;setState({loading:true});try{let t='';if(f.name.toLowerCase().endsWith('.pdf'))t=await extractPdf(f);else t=await f.text();if(!t.trim()){alert('Sin texto');setState({loading:false});return}
@@ -195,6 +201,9 @@ if(S.fcIndex+1<S.flashcardDeck.length)setState({fcIndex:S.fcIndex+1,fcFlipped:fa
 
 function wordStyle(w,l){const k=l+':'+w.toLowerCase().trim().replace(/[.,;:!?¿¡"""''()\[\]{}]/g,'');const v=S.vocabulary[k];if(!v)return'';return`background:${LEVELS[v.level]?.bg};border-radius:3px;padding:0 2px;`}
 
+function saveReadPos(){const ra=document.getElementById('reader-area');if(ra&&S.currentTextId){const pct=ra.scrollHeight>ra.clientHeight?ra.scrollTop/(ra.scrollHeight-ra.clientHeight):0;S.readingPositions[S.currentTextId]=pct;savePositions()}}
+function restoreReadPos(){const ra=document.getElementById('reader-area');if(ra&&S.currentTextId&&S.readingPositions[S.currentTextId]!=null){const pct=S.readingPositions[S.currentTextId];setTimeout(()=>{ra.scrollTop=pct*(ra.scrollHeight-ra.clientHeight)},100)}}
+
 function cleanOrphanedFlashcards(){let cleaned=false;for(const k of Object.keys(S.flashcards)){if(!S.vocabulary[k]){delete S.flashcards[k];cleaned=true}}if(cleaned)saveFc()}
 
 function getStats(){cleanOrphanedFlashcards();const it=Object.values(S.vocabulary);const now=new Date();return{total:it.length,unknown:it.filter(v=>v.level==='unknown').length,recognized:it.filter(v=>v.level==='recognized').length,learned:it.filter(v=>v.level==='learned').length,dueToday:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v||v.level==='learned')return false;const f=S.flashcards[k];return!f.nextReview||new Date(f.nextReview)<=now}).length,allCards:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];return v&&v.level!=='learned'}).length}}
@@ -210,24 +219,27 @@ function getAllTags(){const tags=new Set();for(const v of Object.values(S.vocabu
 
 // ══════ RENDER ══════
 function render(){const app=document.getElementById('app');app.style.display='flex';app.style.flexDirection='column';app.style.minHeight='100vh';
-if(!S.user){const isL=S.authView==='login';app.innerHTML=`<div class="auth-container"><div class="auth-card card" style="padding:40px 30px"><div style="text-align:center;margin-bottom:32px">${I.bookMarked.replace('24px','40px').replace('24px','40px')}<h1 style="font-size:28px;font-weight:700;color:var(--text);font-family:'Crimson Pro',serif;margin-top:12px">LinguaReader</h1><p style="color:var(--text3);font-size:14px;margin-top:4px">Tu lector de idiomas con repaso integrado</p></div><h2 style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:20px;text-align:center">${isL?'Iniciar sesión':'Crear cuenta'}</h2>${!isL?'<div class="auth-input"><input class="input" id="a-name" placeholder="Tu nombre"></div>':''}<div class="auth-input"><input class="input" id="a-email" type="email" placeholder="Email"></div><div class="auth-input"><input class="input" id="a-pass" type="password" placeholder="Contraseña"></div>${S.authError?`<div class="auth-error">${S.authError}</div>`:''}<button class="btn btn-primary" id="a-sub" style="width:100%;justify-content:center;padding:12px;font-size:15px;margin-bottom:16px" ${S.authLoading?'disabled':''}>${S.authLoading?I.load+' Cargando...':(isL?'Entrar':'Crear cuenta')}</button><p style="text-align:center;color:var(--text3);font-size:14px">${isL?'¿No tienes cuenta?':'¿Ya tienes cuenta?'} <a href="#" id="a-tog" style="color:var(--accent);font-weight:600;text-decoration:none">${isL?'Regístrate':'Inicia sesión'}</a></p></div></div>`;
+if(!S.user){const isL=S.authView==='login';app.innerHTML=`<div class="auth-container"><div class="auth-card card" style="padding:40px 30px"><div style="text-align:center;margin-bottom:32px">${I.bookMarked.replace('24px','40px').replace('24px','40px')}<h1 style="font-size:28px;font-weight:700;color:var(--text);font-family:'Crimson Pro',serif;margin-top:12px">LinguaReader</h1><p style="color:var(--text3);font-size:14px;margin-top:4px">Tu lector de idiomas con repaso integrado</p></div><h2 style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:20px;text-align:center">${isL?'Iniciar sesión':'Crear cuenta'}</h2>${!isL?'<div class="auth-input"><input class="input" id="a-name" placeholder="Tu nombre"></div>':''}<div class="auth-input"><input class="input" id="a-email" type="email" placeholder="Email"></div><div class="auth-input"><input class="input" id="a-pass" type="password" placeholder="Contraseña"></div>${S.authError?`<div class="auth-error">${S.authError}</div>`:''}<button class="btn btn-primary" id="a-sub" style="width:100%;justify-content:center;padding:12px;font-size:15px;margin-bottom:16px" ${S.authLoading?'disabled':''}>${S.authLoading?I.load+' Cargando...':(isL?'Entrar':'Crear cuenta')}</button>${isL?'<p style="text-align:center;margin-bottom:12px"><a href="#" id="a-forgot" style="color:var(--accent);font-size:13px;text-decoration:none">¿Olvidaste tu contraseña?</a></p>':''}<p style="text-align:center;color:var(--text3);font-size:14px">${isL?'¿No tienes cuenta?':'¿Ya tienes cuenta?'} <a href="#" id="a-tog" style="color:var(--accent);font-weight:600;text-decoration:none">${isL?'Regístrate':'Inicia sesión'}</a></p></div></div>`;
 document.getElementById('a-sub')?.addEventListener('click',()=>{const e=document.getElementById('a-email').value.trim(),p=document.getElementById('a-pass').value;if(isL)doLogin(e,p);else doRegister(e,p,document.getElementById('a-name').value.trim())});
 document.getElementById('a-pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('a-sub').click()});
-document.getElementById('a-tog')?.addEventListener('click',e=>{e.preventDefault();setState({authView:isL?'register':'login',authError:''})});return}
+document.getElementById('a-tog')?.addEventListener('click',e=>{e.preventDefault();setState({authView:isL?'register':'login',authError:''})});
+document.getElementById('a-forgot')?.addEventListener('click',e=>{e.preventDefault();const email=document.getElementById('a-email').value;doResetPassword(email)});return}
 if(S.loading){app.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100vh;gap:12px">${I.load.replace('16px','32px').replace('16px','32px')}<span style="color:var(--text3)">Cargando...</span></div>`;return}
 
 const st=getStats();const streak=getStreak(S.streakHistory);const userName=S.user.displayName||S.user.email?.split('@')[0]||'';
 let h='';
 
 // Header
-h+=`<header><div style="display:flex;align-items:center;gap:8px">${I.bookMarked}<span style="font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.3px">LinguaReader</span></div><div style="display:flex;gap:2px;align-items:center">
+h+=`<header><div style="display:flex;align-items:center;gap:8px">${I.bookMarked}<span style="font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.3px">LinguaReader</span></div><div style="display:flex;gap:4px;align-items:center">
+<button class="btn-ghost" onclick="setState({darkMode:!S.darkMode})" style="padding:6px" title="Modo oscuro">${S.darkMode?I.sun:I.moon}</button>
+<button class="btn-ghost" onclick="doLogout()" style="padding:6px;color:var(--text4)" title="${userName}">${I.out}</button>
+</div></header>
+<div class="bottom-nav">
 <button class="nav-btn ${S.view==='library'||S.view==='reader'?'active':''}" onclick="setState({view:'library'})">${I.lib}<span>Biblioteca</span></button>
 <button class="nav-btn ${S.view==='vocabulary'?'active':''}" onclick="setState({view:'vocabulary'})">${I.lib}<span>Vocabulario</span></button>
 <button class="nav-btn ${S.view==='flashcards'?'active':''}" onclick="setState({view:'flashcards'});startFc()">${I.brain}<span>Repasar</span></button>
 <button class="nav-btn ${S.view==='dashboard'?'active':''}" onclick="setState({view:'dashboard'})">${I.chart}<span>Progreso</span></button>
-<button class="btn-ghost" onclick="setState({darkMode:!S.darkMode})" style="padding:6px" title="Modo oscuro">${S.darkMode?I.sun:I.moon}</button>
-<button class="btn-ghost" onclick="doLogout()" style="padding:6px;color:var(--text4)" title="${userName}">${I.out}</button>
-</div></header><main>`;
+</div><main>`;
 
 // ── LIBRARY ──
 if(S.view==='library'){
@@ -239,7 +251,7 @@ h+=`<div class="card" style="cursor:pointer" onmouseenter="this.style.boxShadow=
 
 // ── READER ──
 if(S.view==='reader'&&S.currentTextId){const meta=S.library.find(t=>t.id===S.currentTextId);const text=S.texts[S.currentTextId]||'';const lang=meta?.language||'en';const paras=text.split(/\n\s*\n/).filter(Boolean);const comp=getComprehension(S.currentTextId);const vc={};for(const k of Object.keys(LEVELS))vc[k]=Object.values(S.vocabulary).filter(w=>w.language===lang&&w.level===k).length;
-h+=`<div style="animation:fadeIn .3s"><div style="margin-bottom:16px;display:flex;align-items:center;gap:12px"><button class="btn-ghost" onclick="setState({view:'library'})" style="padding:8px">${I.back}</button><div style="flex:1;min-width:0"><h2 style="font-size:20px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${meta?.title||''}</h2><span style="color:var(--text3);font-size:13px">${LANGS[lang]} • ${comp.pct}% comprensión (${comp.known}/${comp.total} palabras)</span></div><div class="font-ctrl"><button onclick="setState({fontSize:Math.max(12,S.fontSize-2)})">A-</button><span style="font-size:12px;color:var(--text3)">${S.fontSize}</span><button onclick="setState({fontSize:Math.min(28,S.fontSize+2)})">A+</button></div></div>`;
+h+=`<div style="animation:fadeIn .3s"><div style="margin-bottom:16px;display:flex;align-items:center;gap:12px"><button class="btn-ghost" onclick="saveReadPos();setState({view:'library'})" style="padding:8px">${I.back}</button><div style="flex:1;min-width:0"><h2 style="font-size:20px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${meta?.title||''}</h2><span style="color:var(--text3);font-size:13px">${LANGS[lang]} • ${comp.pct}% comprensión (${comp.known}/${comp.total} palabras)</span></div><div class="font-ctrl"><button onclick="setState({fontSize:Math.max(12,S.fontSize-2)})">A-</button><span style="font-size:12px;color:var(--text3)">${S.fontSize}</span><button onclick="setState({fontSize:Math.min(28,S.fontSize+2)})">A+</button></div></div>`;
 h+=`<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">${Object.entries(LEVELS).map(([k,v])=>`<span class="tag" style="background:${v.bg};color:${v.color}"><span style="width:8px;height:8px;border-radius:50%;background:${v.color};display:inline-block"></span> ${v.label}: ${vc[k]}</span>`).join('')}</div>`;
 h+=`<div class="card" id="reader-area" style="padding:24px;line-height:2;font-size:${S.fontSize}px;font-family:'Crimson Pro',serif;max-height:65vh;overflow-y:auto">`;
 for(const para of paras){const toks=para.split(/(\s+)/);h+='<p style="margin-bottom:18px">';for(const tok of toks){if(/^\s+$/.test(tok)){h+=tok;continue}const c=tok.replace(/[.,;:!?¿¡"""''()\[\]{}]/g,'');if(!c){h+=tok;continue}h+=`<span class="word-span" data-word="${tok.replace(/"/g,'&quot;')}" style="${wordStyle(c,lang)}">${tok}</span>`}h+='</p>'}
@@ -338,7 +350,7 @@ if(S.confirmAction)h+=`<div style="position:fixed;inset:0;background:rgba(0,0,0,
 app.innerHTML=h;
 // Events
 const ra=document.getElementById('reader-area');
-if(ra){ra.addEventListener('mouseup',handleRI);ra.addEventListener('touchend',e=>{setTimeout(()=>handleRI(e),50)})}
+if(ra){ra.addEventListener('mouseup',handleRI);ra.addEventListener('touchend',e=>{setTimeout(()=>handleRI(e),50)});let scrollSaveT;ra.addEventListener('scroll',()=>{clearTimeout(scrollSaveT);scrollSaveT=setTimeout(saveReadPos,500)});restoreReadPos()}
 for(const id of['ewi','eti','eni','tag-input']){const el=document.getElementById(id);if(el)el.focus()}
 const tagI=document.getElementById('tag-input');if(tagI)tagI.addEventListener('keydown',e=>{if(e.key==='Enter')addTag(S.showTagModal,tagI.value)});
 }
