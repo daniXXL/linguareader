@@ -45,3 +45,5 @@ export function getAllTags(){const tags=new Set();for(const v of Object.values(S
 
 export function addDefinition(vocKey,text){const v=S.vocabulary[vocKey];if(!v||!text||!text.trim())return;if(!v.definitions)v.definitions=[];v.definitions.push(text.trim());v.dateModified=new Date().toISOString();saveVoc();setState({addingDefFor:null})}
 export function removeDefinition(vocKey,idx){const v=S.vocabulary[vocKey];if(!v||!v.definitions)return;v.definitions.splice(idx,1);v.dateModified=new Date().toISOString();saveVoc();render()}
+export function addIrregular(vocKey,text){const v=S.vocabulary[vocKey];if(!v||!text||!text.trim())return;if(!v.irregularForms)v.irregularForms=[];const t=text.trim();if(!v.irregularForms.includes(t))v.irregularForms.push(t);v.dateModified=new Date().toISOString();saveVoc();setState({addingIrrFor:null})}
+export function removeIrregular(vocKey,val){const v=S.vocabulary[vocKey];if(!v||!v.irregularForms)return;v.irregularForms=v.irregularForms.filter(f=>f!==val);v.dateModified=new Date().toISOString();saveVoc();render()}

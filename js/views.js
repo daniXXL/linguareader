@@ -72,6 +72,11 @@ if(it.definitions&&it.definitions.length){h+=`<div style="display:flex;flex-dire
 if(S.addingDefFor===key)h+=`<div style="display:flex;gap:6px;margin-top:4px"><input class="input" id="def-add-input" placeholder="Nueva definición..." style="flex:1;font-size:13px;padding:4px 10px" onkeydown="if(event.key==='Enter')addDefinition('${key}',this.value)"><button class="btn btn-primary btn-sm" onclick="addDefinition('${key}',document.getElementById('def-add-input').value)">${I.check}</button><button class="btn-ghost btn-sm" onclick="setState({addingDefFor:null})">${I.x}</button></div>`;
 else h+=`<span class="tag-pill" style="opacity:.5;margin-top:4px" onclick="setState({addingDefFor:'${key}'})">+ definición</span>`;
 h+=`</div>`;
+h+=`<div style="margin-top:4px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">`;
+if(it.irregularForms)for(const f of it.irregularForms)h+=`<span class="pill" style="font-size:11px;padding:2px 10px">${escapeHtml(f)} <span onclick="removeIrregular('${key}','${f.replace(/'/g,"\\'")}')" style="cursor:pointer;margin-left:2px;color:var(--text4)">×</span></span>`;
+if(S.addingIrrFor===key)h+=`<input class="input" id="irr-add-input" placeholder="forma..." style="width:120px;font-size:12px;padding:3px 8px" onkeydown="if(event.key==='Enter')addIrregular('${key}',this.value)"><button class="btn btn-primary btn-sm" onclick="addIrregular('${key}',document.getElementById('irr-add-input').value)">${I.check}</button>`;
+else h+=`<span class="tag-pill" style="opacity:.5" onclick="setState({addingIrrFor:'${key}'})">+ forma irregular</span>`;
+h+=`</div>`;
 if(ien)h+=`<div style="margin-top:6px;display:flex;gap:6px"><input class="input" id="eni" value="${(S.noteText||'').replace(/"/g,'&quot;')}" oninput="S.noteText=this.value" style="flex:1;font-size:13px;padding:4px 10px" placeholder="Nota..."><button class="btn btn-primary btn-sm" onclick="S.vocabulary['${key}'].note=S.noteText;saveVoc();setState({editingNote:null})">${I.check}</button><button class="btn-ghost btn-sm" onclick="setState({editingNote:null})">${I.x}</button></div>`;
 else if(it.note)h+=`<div style="color:var(--text2);font-size:13px;margin-top:4px;font-style:italic">${escapeHtml(it.note)}</div>`;
 // Tags
@@ -154,7 +159,7 @@ if(ra){ra.addEventListener('mouseup',handleRI);
 if(S.selectMode){let selDebounce=null;const onSelChange=()=>{clearTimeout(selDebounce);selDebounce=setTimeout(()=>{if(S.view!=='reader'||!S.selectMode)return;const sel=window.getSelection();const txt=sel?.toString().trim();if(txt&&txt.length>0&&ra.contains(sel.anchorNode)){const clean=txt.replace(/^[.,;:!?¿¡"""''()\[\]{}]+|[.,;:!?¿¡"""''()\[\]{}]+$/g,'');if(clean)setState({popup:{text:clean,isPhrase:clean.includes(' ')}})}},500)};document.addEventListener('selectionchange',onSelChange);ra._selCleanup=onSelChange}
 else{let tY=0,tX=0,tMoved=false;ra.addEventListener('touchstart',e=>{tY=e.touches[0].clientY;tX=e.touches[0].clientX;tMoved=false},{passive:true});ra.addEventListener('touchmove',e=>{if(Math.abs(e.touches[0].clientY-tY)>10||Math.abs(e.touches[0].clientX-tX)>10)tMoved=true},{passive:true});ra.addEventListener('touchend',e=>{if(!tMoved)setTimeout(()=>handleRI(e),50)})}
 let scrollSaveT;ra.addEventListener('scroll',()=>{clearTimeout(scrollSaveT);scrollSaveT=setTimeout(saveReadPos,500)});restoreReadPos()}
-for(const id of['ewi','eti','eni','tag-input','def-add-input']){const el=document.getElementById(id);if(el)el.focus()}
+for(const id of['ewi','eti','eni','tag-input','def-add-input','irr-add-input']){const el=document.getElementById(id);if(el)el.focus()}
 const tagI=document.getElementById('tag-input');if(tagI)tagI.addEventListener('keydown',e=>{if(e.key==='Enter')addTag(S.showTagModal,tagI.value)});
 }
 
