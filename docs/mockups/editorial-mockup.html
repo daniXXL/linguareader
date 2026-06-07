@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaReader — Mockup Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6EFE2;
+  --paper-2:#FBF6EC;
+  --ink:#221D17;
+  --ink-soft:#5C5147;
+  --muted:#938577;
+  --faint:#B7A892;
+  --rule:#E2D6C2;
+  --rule-strong:#cdb ;
+  --rule-strong:#D2C3AC;
+  --accent:#BC4A2B;
+  --accent-deep:#8F3216;
+  --gold:#A8822E;
+  --green:#5B7A4F;
+  --shadow:0 18px 40px -24px rgba(60,40,20,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Crimson Pro',Georgia,serif;
+  -webkit-font-smoothing:antialiased;
+  /* paper grain */
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.5), transparent 40%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  min-height:100vh;
+}
+.mono{font-family:'Spline Sans Mono',monospace}
+.disp{font-family:'Fraunces',serif}
+
+/* ─── Shell ─── */
+.wrap{max-width:760px;margin:0 auto;padding:0 28px 140px}
+
+/* Masthead */
+.masthead{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:26px 0 14px;border-bottom:1.5px solid var(--ink);
+  position:sticky;top:0;background:linear-gradient(var(--paper) 78%,transparent);z-index:20;
+  backdrop-filter:blur(2px);
+}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand .logo{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.5px}
+.brand .logo b{font-style:italic;font-weight:600;color:var(--accent)}
+.brand .est{font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.mast-right{display:flex;gap:18px;align-items:center}
+.mast-right .ico{width:18px;height:18px;color:var(--ink-soft);cursor:pointer;transition:color .2s}
+.mast-right .ico:hover{color:var(--accent)}
+
+/* Tabs (mockup nav) */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin-bottom:34px;position:sticky;top:71px;background:var(--paper);z-index:19}
+.tab{
+  font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);background:none;border:none;cursor:pointer;padding:16px 18px 14px;position:relative;transition:color .25s;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--ink)}
+.tab.active::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:var(--accent)}
+
+/* Section title */
+.kicker{font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.page-title{font-family:'Fraunces',serif;font-weight:340;font-size:clamp(38px,8vw,60px);line-height:.98;letter-spacing:-1.5px}
+.page-title em{font-style:italic;color:var(--accent-deep)}
+.page-sub{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;letter-spacing:.02em}
+
+/* Due callout */
+.callout{
+  margin:30px 0 6px;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--rule);
+  padding:18px 2px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.callout .c-num{font-family:'Fraunces',serif;font-size:42px;font-weight:340;line-height:1;color:var(--accent)}
+.callout .c-txt b{font-family:'Fraunces',serif;font-weight:500;font-size:18px;display:block}
+.callout .c-txt span{font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.03em}
+
+/* Contents list */
+.contents{margin-top:14px}
+.entry{
+  display:grid;grid-template-columns:46px 1fr auto;gap:6px 18px;align-items:start;
+  padding:26px 4px;border-bottom:1px solid var(--rule);cursor:pointer;
+  transition:background .3s,padding .3s;position:relative;
+}
+.entry::before{content:"";position:absolute;left:0;top:0;bottom:-1px;width:0;background:var(--accent);transition:width .3s}
+.entry:hover{background:linear-gradient(90deg,rgba(188,74,43,.05),transparent 70%);padding-left:14px}
+.entry:hover::before{width:3px}
+.entry:hover .e-title{color:var(--accent-deep)}
+.e-num{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--faint);padding-top:9px}
+.e-title{font-family:'Fraunces',serif;font-weight:380;font-size:27px;line-height:1.08;letter-spacing:-.4px;transition:color .25s}
+.e-preview{font-family:'Crimson Pro',serif;font-size:16px;color:var(--ink-soft);line-height:1.5;margin-top:7px;max-width:46ch;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.e-meta{display:flex;gap:14px;margin-top:11px;font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.02em;flex-wrap:wrap}
+.e-meta .lang{color:var(--ink);border:1px solid var(--rule-strong);padding:2px 8px;border-radius:2px}
+.e-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-top:6px}
+.pct{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--green)}
+.pct small{font-family:'Spline Sans Mono',monospace;font-size:9px;color:var(--muted);display:block;text-align:right;letter-spacing:.1em}
+
+/* ─── Reader ─── */
+.reader-head{padding:8px 0 0}
+.back{font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:inline-flex;gap:8px;align-items:center;transition:color .2s}
+.back:hover{color:var(--accent)}
+.art-title{font-family:'Fraunces',serif;font-weight:330;font-size:clamp(36px,7vw,54px);line-height:1;letter-spacing:-1.2px;margin:22px 0 16px}
+.art-meta{display:flex;gap:18px;font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;align-items:center;padding-bottom:18px;border-bottom:1.5px solid var(--ink);flex-wrap:wrap}
+.art-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--faint)}
+.legend{display:flex;gap:18px;margin:18px 0 26px;font-family:'Spline Sans Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.04em;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.prose{font-family:'Crimson Pro',serif;font-size:21px;line-height:1.85;color:#28221b;max-width:64ch}
+.prose p{margin-bottom:22px;text-align:justify;hyphens:auto}
+.prose p:first-of-type::first-letter{
+  font-family:'Fraunces',serif;font-weight:420;float:left;font-size:78px;line-height:.74;
+  padding:8px 14px 0 0;color:var(--accent);
+}
+.w{cursor:pointer;border-radius:2px;transition:background .15s,box-shadow .15s;padding:0 1px}
+.w:hover{background:rgba(188,74,43,.16)}
+.w.unknown{background:#FBE0D8;box-shadow:inset 0 -2px 0 rgba(188,74,43,.35)}
+.w.recognized{background:#F7EAC8;box-shadow:inset 0 -2px 0 rgba(168,130,46,.4)}
+.w.learned{background:#E2EBDA;box-shadow:inset 0 -2px 0 rgba(91,122,79,.4)}
+
+/* ─── Flashcard ─── */
+.fc{
+  border:1.5px solid var(--ink);background:var(--paper-2);border-radius:4px;
+  padding:54px 36px;text-align:center;margin-top:30px;box-shadow:var(--shadow);position:relative;
+}
+.fc .corner{position:absolute;top:14px;left:16px;font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.fc .corner.r{left:auto;right:16px}
+.fc .word{font-family:'Fraunces',serif;font-weight:380;font-size:46px;letter-spacing:-1px;margin:8px 0 4px}
+.fc .ph{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.05em}
+.fc .rule{width:54px;height:1.5px;background:var(--accent);margin:26px auto 22px}
+.fc .ans{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:30px;color:var(--green)}
+.fc .ex{font-family:'Crimson Pro',serif;font-size:17px;color:var(--ink-soft);margin-top:14px;font-style:italic;max-width:42ch;margin-inline:auto;line-height:1.5}
+.grades{display:flex;gap:10px;margin-top:26px;justify-content:center;flex-wrap:wrap}
+.grade{font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ink);background:none;color:var(--ink);padding:11px 18px;border-radius:3px;cursor:pointer;transition:all .2s}
+.grade:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
+
+/* Word popup */
+.pop-demo{margin:30px auto 0;max-width:380px;border:1.5px solid var(--ink);background:var(--paper-2);border-radius:4px;box-shadow:var(--shadow);overflow:hidden}
+.pop-demo .ph{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.pop-demo .ph span{font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.pop-demo .word{font-family:'Fraunces',serif;font-size:30px;font-weight:380;padding:20px 18px 6px}
+.pop-demo .tr{font-family:'Crimson Pro',serif;font-style:italic;font-size:19px;color:var(--green);padding:0 18px 4px}
+.pop-demo .def{font-family:'Crimson Pro',serif;font-size:15px;color:var(--ink-soft);padding:0 18px 16px;line-height:1.45}
+.pop-demo .acts{display:flex;border-top:1px solid var(--rule)}
+.pop-demo .acts button{flex:1;border:none;background:none;padding:14px 6px;cursor:pointer;font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;border-right:1px solid var(--rule);transition:background .2s}
+.pop-demo .acts button:last-child{border-right:none}
+.pop-demo .acts .u{color:var(--accent)}.pop-demo .acts .r{color:var(--gold)}.pop-demo .acts .l{color:var(--green)}
+.pop-demo .acts button:hover{background:rgba(0,0,0,.03)}
+
+/* Bottom nav */
+.botnav{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--paper) 30%);padding:14px 0 22px;z-index:25}
+.botnav .inner{max-width:760px;margin:0 auto;padding:0 28px;display:flex;justify-content:center;gap:6px}
+.botnav button{font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid transparent;border-radius:999px;padding:9px 18px;cursor:pointer;transition:all .2s}
+.botnav button:hover{color:var(--ink)}
+.botnav button.active{color:var(--paper);background:var(--ink)}
+
+/* views */
+.view{display:none;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+.view.show{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.stagger>*{opacity:0;animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+.stagger>*:nth-child(1){animation-delay:.04s}
+.stagger>*:nth-child(2){animation-delay:.12s}
+.stagger>*:nth-child(3){animation-delay:.2s}
+.stagger>*:nth-child(4){animation-delay:.28s}
+.stagger>*:nth-child(5){animation-delay:.36s}
+.stagger>*:nth-child(6){animation-delay:.44s}
+
+.note{max-width:760px;margin:0 auto;padding:30px 28px 10px;font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--faint);letter-spacing:.04em;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="note">// MOCKUP · Dirección "Editorial / Revista" · datos de ejemplo · esto NO es la app real — usa las pestañas para explorar</div>
+
+<header class="masthead">
+  <div class="brand">
+    <div class="logo">Lingua<b>Reader</b></div>
+    <div class="est">Est. MMXXVI</div>
+  </div>
+  <div class="mast-right">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-v="lib">Biblioteca</button>
+  <button class="tab" data-v="read">Lector</button>
+  <button class="tab" data-v="fc">Repasar</button>
+</div>
+
+<div class="wrap">
+
+  <!-- LIBRARY -->
+  <section class="view show stagger" id="v-lib">
+    <div class="kicker">N.º 12 — Tu colección</div>
+    <h1 class="page-title">Mi <em>Biblioteca</em></h1>
+    <div class="page-sub">3 textos · 🔥 5 días de racha · 142 palabras aprendidas</div>
+
+    <div class="callout">
+      <div style="display:flex;align-items:center;gap:18px">
+        <div class="c-num">8</div>
+        <div class="c-txt"><b>tarjetas pendientes hoy</b><span>la práctica diaria refuerza tu memoria</span></div>
+      </div>
+      <button class="grade" style="border-color:var(--accent);color:var(--accent)">Repasar →</button>
+    </div>
+
+    <div class="contents">
+      <div class="entry">
+        <div class="e-num">01</div>
+        <div>
+          <div class="e-title">Don Quijote de la Mancha</div>
+          <div class="e-preview">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero…</div>
+          <div class="e-meta"><span class="lang">ES</span><span>38.420 palabras</span><span>14 mar 2026</span></div>
+        </div>
+        <div class="e-right"><div class="pct">78%<small>comprensión</small></div></div>
+      </div>
+
+      <div class="entry">
+        <div class="e-num">02</div>
+        <div>
+          <div class="e-title">Pride &amp; Prejudice</div>
+          <div class="e-preview">It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife…</div>
+          <div class="e-meta"><span class="lang">EN</span><span>12.890 palabras</span><span>2 abr 2026</span></div>
+        </div>
+        <div class="e-right"><div class="pct" style="color:var(--gold)">54%<small>comprensión</small></div></div>
+      </div>
+
+      <div class="entry">
+        <div class="e-num">03</div>
+        <div>
+          <div class="e-title">Le Petit Prince</div>
+          <div class="e-preview">Lorsque j'avais six ans j'ai vu, une fois, une magnifique image, dans un livre sur la forêt vierge…</div>
+          <div class="e-meta"><span class="lang">FR</span><span>6.240 palabras</span><span>28 abr 2026</span></div>
+        </div>
+        <div class="e-right"><div class="pct" style="color:var(--accent)">31%<small>comprensión</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- READER -->
+  <section class="view" id="v-read">
+    <div class="reader-head">
+      <a class="back" href="#">← Volver a la biblioteca</a>
+      <h1 class="art-title">Pride &amp; Prejudice</h1>
+      <div class="art-meta"><span>ENGLISH</span><span class="dot"></span><span>54% COMPRENSIÓN</span><span class="dot"></span><span>CAPÍTULO I</span></div>
+      <div class="legend">
+        <span><i style="background:#E69A86"></i>Desconocida · 24</span>
+        <span><i style="background:#D9B45B"></i>Reconozco · 61</span>
+        <span><i style="background:#7E9A6E"></i>Aprendida · 138</span>
+      </div>
+    </div>
+    <div class="prose">
+      <p>It is a <span class="w learned">truth</span> universally <span class="w recognized">acknowledged</span>, that a single <span class="w learned">man</span> in <span class="w unknown">possession</span> of a good <span class="w recognized">fortune</span>, must be in <span class="w unknown">want</span> of a <span class="w learned">wife</span>.</p>
+      <p>However little <span class="w recognized">known</span> the feelings or views of such a man may be on his first <span class="w unknown">entering</span> a <span class="w recognized">neighbourhood</span>, this truth is so well <span class="w unknown">fixed</span> in the minds of the surrounding <span class="w recognized">families</span>, that he is <span class="w unknown">considered</span> the rightful <span class="w unknown">property</span> of some one or other of their <span class="w recognized">daughters</span>.</p>
+      <p>“My dear Mr. Bennet,” said his lady to him one day, “have you heard that <span class="w recognized">Netherfield</span> Park is let at <span class="w unknown">last</span>?”</p>
+    </div>
+
+    <div class="pop-demo">
+      <div class="ph"><span>Palabra</span><span>🔊</span></div>
+      <div class="word">possession</div>
+      <div class="tr">posesión</div>
+      <div class="def">El hecho de tener o poseer algo; control o tenencia de un objeto o propiedad.</div>
+      <div class="acts">
+        <button class="u">Desconocida</button>
+        <button class="r">Reconozco</button>
+        <button class="l">Aprendida</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section class="view" id="v-fc">
+    <div class="kicker">Repetición espaciada</div>
+    <h1 class="page-title">Re<em>pasar</em></h1>
+    <div class="page-sub">tarjeta 3 de 8 · 🔥 5 días de racha</div>
+
+    <div class="fc">
+      <div class="corner">English</div>
+      <div class="corner r">03 / 08</div>
+      <div class="word">acknowledged</div>
+      <div class="ph">/ əkˈnɒlɪdʒd /</div>
+      <div class="rule"></div>
+      <div class="ans">reconocido</div>
+      <div class="ex">“A truth universally acknowledged.” — una verdad universalmente reconocida.</div>
+      <div class="grades">
+        <button class="grade">No la sé</button>
+        <button class="grade">Difícil</button>
+        <button class="grade">Regular</button>
+        <button class="grade">Fácil</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="botnav">
+  <div class="inner">
+    <button class="active" data-v="lib">Biblioteca</button>
+    <button data-v="read">Lector</button>
+    <button data-v="fc">Repasar</button>
+    <button data-v="lib">Progreso</button>
+  </div>
+</nav>
+
+<script>
+const views={lib:'v-lib',read:'v-read',fc:'v-fc'};
+function go(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('show'));
+  const el=document.getElementById(views[v]||'v-lib');el.classList.add('show');
+  // restart stagger
+  el.classList.remove('stagger');void el.offsetWidth;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
+  document.querySelectorAll('.botnav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
+</script>
+</body>
+</html>

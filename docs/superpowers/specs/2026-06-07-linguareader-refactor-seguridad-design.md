@@ -26,6 +26,8 @@ así que el refactor debe ser conservador y verificado.
   base ya limpia.
 - **Técnica:** módulos JS nativos del navegador (`<script type="module">`), **sin paso de
   compilación**. La app sigue siendo 100% estática y se despliega igual que hoy.
+- **Rediseño visual:** dirección **"Editorial / Revista"** aprobada por el usuario a partir
+  de un mockup real (`docs/mockups/editorial-mockup.html`). Se aplica en la Fase 3.
 
 ## Fuera de alcance (explícito)
 
@@ -96,6 +98,30 @@ Con esto, el comportamiento queda **idéntico**; solo cambia la organización de
    acerca/supera el límite de 1 MB por documento de Firestore, avisar con un toast claro y
    no dejar la app en un estado inconsistente.
 
+## Fase 3 — Rediseño visual ("Editorial / Revista")
+
+Se aplica sobre `css/styles.css` (ya extraído en Fase 1) y los marcadores de las vistas en
+`views.js`, **sin cambiar la lógica ni el flujo**. Referencia visual aprobada:
+`docs/mockups/editorial-mockup.html`.
+
+Características de la dirección:
+
+- **Tipografía:** *Fraunces* (serif editorial) para títulos/display; *Crimson Pro* para el
+  texto de lectura; *Spline Sans Mono* en minúsculas/espaciado para etiquetas, datos y meta.
+- **Color:** papel crema cálido (`--paper #F6EFE2`), tinta casi negra (`--ink #221D17`),
+  terracota como acento puntual (`--accent #BC4A2B`); ámbar y verde para niveles de palabra.
+- **Composición:** menos cajas con sombra, más líneas finas y aire; biblioteca como "índice
+  de revista" con textos numerados (01, 02, 03); separadores hairline entre entradas.
+- **Lector:** estilo artículo — letra capital (drop cap) en el primer párrafo, texto
+  justificado, palabras guardadas con subrayado de color según nivel.
+- **Detalles:** textura de papel sutil (grano SVG), animación de entrada escalonada,
+  hover con barra de acento en las entradas.
+- **Modo oscuro:** adaptar la paleta editorial a una variante oscura coherente (mantener el
+  toggle existente).
+
+Aplicación cuidando no romper comportamiento: se reescriben estilos y clases/markup de
+presentación; los `id`/manejadores que usa el JS se conservan o se actualizan en conjunto.
+
 ## Verificación (sin tests automáticos)
 
 Lista de verificación manual a ejecutar tras cada fase. Nada se da por terminado hasta que
@@ -117,6 +143,13 @@ Para Fase 2, además:
 - [ ] Una nota/título con `<img src=x onerror=alert(1)>` se muestra como texto, no se ejecuta
 - [ ] Mensaje claro al exceder el límite de traducción
 - [ ] Aviso al intentar guardar un texto demasiado grande
+
+Para Fase 3, además:
+- [ ] Todas las vistas reflejan la dirección editorial (biblioteca, lector, vocabulario,
+      flashcards, dashboard, modales, auth)
+- [ ] El modo oscuro se ve coherente con la nueva paleta
+- [ ] La lectura sigue siendo legible (tamaños, contraste) en móvil y escritorio
+- [ ] Ninguna interacción se rompió por el cambio de markup/clases
 
 ## Riesgos y mitigación
 
