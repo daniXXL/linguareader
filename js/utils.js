@@ -16,3 +16,5 @@ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=U
 
 export function todayStr(){return new Date().toISOString().slice(0,10)}
 export function getStreak(history){if(!history||!history.length)return 0;const sorted=[...new Set(history)].sort().reverse();let streak=0;const today=new Date();today.setHours(0,0,0,0);for(let i=0;i<sorted.length;i++){const d=new Date(sorted[i]);d.setHours(0,0,0,0);const diff=Math.round((today-d)/(86400000));if(diff===i)streak++;else break}return streak}
+
+export function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])}

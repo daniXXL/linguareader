@@ -1,7 +1,7 @@
 // js/views.js
 import {LANGS, LEVELS, I, SM2Q, SM2L, SM2C} from './config.js';
 import {S, setState} from './state.js';
-import {getStreak} from './utils.js';
+import {getStreak, escapeHtml} from './utils.js';
 import {doLogin, doRegister, doResetPassword} from './auth.js';
 import {getStats, getComprehension, getWeeklyData, getAllTags, wordStyle, saveReadPos, restoreReadPos, addTag} from './actions.js';
 
