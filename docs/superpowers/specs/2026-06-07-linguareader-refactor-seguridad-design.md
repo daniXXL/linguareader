@@ -165,6 +165,33 @@ que la edición actual de palabra/traducción/nota). Las secciones vacías se oc
 **Fuente de datos:** automático (APIs) + edición manual. No se importa el `.apkg` de Refold
 (fuera de alcance por ahora).
 
+## Fase 6 — Afinar el algoritmo de repaso (estilo Anki)
+
+El algoritmo actual es SM-2 "puro" (función `sm2` + mapeo `SM2Q`). Tiene dos comportamientos
+que el usuario quiere acercar a Anki:
+
+1. **"Difícil" ya no reinicia.** Hoy `hard` (q=2) cae en la rama `q<3` y reinicia el
+   intervalo a 1 día. Nuevo comportamiento: la palabra **sigue avanzando** con un intervalo
+   corto (≈ `intervalo_anterior × 1.2`, mínimo +1 día) y la facilidad baja un poco. Solo
+   **"No la sé"** (again, q=0) reinicia/relearning.
+2. **"Fácil" ya no saca la palabra del mazo.** Hoy `easy` (q=5) marca `level='learned'` y
+   `startFc` excluye las learned, así que desaparece. Nuevo comportamiento: "Fácil" agranda
+   el intervalo con un bonus (≈ `×1.3`) y sube la facilidad, pero la palabra **permanece**
+   y vuelve cuando toque (intervalo largo).
+
+**Consecuencia — redefinir "Aprendida":** como las palabras ya no se eliminan, "Aprendida"
+pasa a significar *"madura"*: se marca automáticamente cuando el intervalo alcanza un umbral
+(p. ej. **≥ 21 días**), pero la palabra **sigue siendo repasable** cuando venza. El usuario
+puede seguir ajustando el nivel a mano. El mazo de repaso (`startFc`) deja de excluir las
+"learned"; en su lugar muestra **todas las tarjetas vencidas** (`nextReview <= ahora`),
+como Anki. El conteo de "pendientes hoy" se ajusta a esta nueva lógica.
+
+**Impacto en stats:** la comprensión por texto y los niveles siguen funcionando; "Aprendida"
+ahora refleja madurez real (intervalo largo) en vez de exclusión manual.
+
+Los factores concretos (1.2, 1.3, umbral de madurez, paso de relearning) se fijan en el plan
+de implementación. Cambios retrocompatibles con las flashcards/vocabulario existentes.
+
 ## Verificación (sin tests automáticos)
 
 Lista de verificación manual a ejecutar tras cada fase. Nada se da por terminado hasta que
@@ -206,6 +233,13 @@ Para Fase 5, además:
 - [ ] El audio de palabra y de frase suena (TTS)
 - [ ] Se pueden editar manualmente definiciones y formas irregulares
 - [ ] Palabras antiguas sin los campos nuevos siguen funcionando (retrocompatible)
+
+Para Fase 6, además:
+- [ ] "Difícil" da un intervalo corto pero NO reinicia la palabra
+- [ ] "Fácil" agranda el intervalo pero la palabra sigue en el mazo
+- [ ] Una palabra con intervalo ≥ 21 días se marca "Aprendida" pero vuelve al vencer
+- [ ] El conteo de "pendientes hoy" coincide con las tarjetas realmente vencidas
+- [ ] Las flashcards/vocabulario existentes siguen funcionando tras el cambio
 
 ## Riesgos y mitigación
 
