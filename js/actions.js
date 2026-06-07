@@ -42,3 +42,6 @@ export function addTag(vocKey,tag){if(!tag.trim())return;const v=S.vocabulary[vo
 export function removeTag(vocKey,tag){const v=S.vocabulary[vocKey];if(!v||!v.tags)return;v.tags=v.tags.filter(t=>t!==tag);saveVoc();render()}
 
 export function getAllTags(){const tags=new Set();for(const v of Object.values(S.vocabulary)){if(v.tags)v.tags.forEach(t=>tags.add(t))}return[...tags].sort()}
+
+export function addDefinition(vocKey,text){const v=S.vocabulary[vocKey];if(!v||!text||!text.trim())return;if(!v.definitions)v.definitions=[];v.definitions.push(text.trim());v.dateModified=new Date().toISOString();saveVoc();setState({addingDefFor:null})}
+export function removeDefinition(vocKey,idx){const v=S.vocabulary[vocKey];if(!v||!v.definitions)return;v.definitions.splice(idx,1);v.dateModified=new Date().toISOString();saveVoc();render()}
