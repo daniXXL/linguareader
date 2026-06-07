@@ -122,6 +122,49 @@ Características de la dirección:
 Aplicación cuidando no romper comportamiento: se reescriben estilos y clases/markup de
 presentación; los `id`/manejadores que usa el JS se conservan o se actualizan en conjunto.
 
+## Fase 4 — Lector con audio (read-along)
+
+Permitir escuchar el texto mientras se lee, con **resaltado frase por frase**.
+
+- Usa la Web Speech API (`speechSynthesis`), ya presente en la app vía `speak()`.
+- Dividir el texto del lector en oraciones; al reproducir, resaltar la oración actual y
+  avanzar con el evento `onend`/`onboundary` de cada utterance.
+- Controles: reproducir/pausar, detener, y selector de velocidad (p. ej. 0.75× / 1× / 1.25×).
+- Voz por idioma según `LANG_VOICE` (ya definido).
+- Respeta el modo selección/lectura actual; el resaltado de audio no debe pisar el
+  resaltado por nivel de palabra (usar un estilo distinto, p. ej. fondo sutil de la frase).
+- Degradación: si el navegador no soporta TTS, ocultar los controles.
+
+## Fase 5 — Flashcards estilo Refold (estructura) + estética editorial
+
+Rediseñar el reverso de la flashcard para seguir la estructura del mazo Refold
+"Inglés-mil", con la estética Editorial/Revista. Orden del reverso:
+
+1. **Palabra** + botón de audio de la palabra (TTS)
+2. divisor
+3. **definiciones:** lista con viñetas (1..n)
+4. **formas irregulares:** chips tipo píldora (solo si existen)
+5. **ejemplo:** frase entre comillas + botón de audio de la frase (TTS), y debajo la
+   **traducción** (oculta/desenfocada hasta tocar, como el "hint" de Refold)
+6. botones de calificación SM-2 existentes (No la sé / Difícil / Regular / Fácil)
+
+Referencia visual: la pestaña "Repasar" de `docs/mockups/editorial-mockup.html`.
+
+**Audio:** generado con TTS (`speak()`) para palabra y frase — no se usan mp3 pregrabados.
+
+**Modelo de datos (cambios en cada entrada de `vocabulary`):** añadir campos opcionales,
+retrocompatibles (si faltan, esa sección no se muestra):
+
+- `definitions: string[]` — definiciones (hoy existe `note`/`definition` sueltos; se migran
+  a esta lista). Autocompletado desde las APIs de traducción/diccionario cuando sea posible.
+- `irregularForms: string[]` — formas irregulares; principalmente edición manual.
+
+Se añade UI de edición manual para estos campos en la vista de Vocabulario (en línea, igual
+que la edición actual de palabra/traducción/nota). Las secciones vacías se ocultan.
+
+**Fuente de datos:** automático (APIs) + edición manual. No se importa el `.apkg` de Refold
+(fuera de alcance por ahora).
+
 ## Verificación (sin tests automáticos)
 
 Lista de verificación manual a ejecutar tras cada fase. Nada se da por terminado hasta que
@@ -150,6 +193,19 @@ Para Fase 3, además:
 - [ ] El modo oscuro se ve coherente con la nueva paleta
 - [ ] La lectura sigue siendo legible (tamaños, contraste) en móvil y escritorio
 - [ ] Ninguna interacción se rompió por el cambio de markup/clases
+
+Para Fase 4, además:
+- [ ] Reproducir lee el texto y resalta la frase actual; avanza sola
+- [ ] Pausar/detener y cambiar velocidad funcionan
+- [ ] El resaltado de audio no rompe el coloreado por nivel de palabra
+- [ ] Sin TTS disponible, los controles se ocultan sin errores
+
+Para Fase 5, además:
+- [ ] El reverso muestra: palabra+audio, definiciones, formas irregulares (si hay),
+      ejemplo+audio, traducción revelable, botones SM-2
+- [ ] El audio de palabra y de frase suena (TTS)
+- [ ] Se pueden editar manualmente definiciones y formas irregulares
+- [ ] Palabras antiguas sin los campos nuevos siguen funcionando (retrocompatible)
 
 ## Riesgos y mitigación
 
