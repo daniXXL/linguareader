@@ -6,7 +6,7 @@ import {loadAll, saveVoc, saveFc, saveLib} from './db.js';
 import {speak, exportCSV} from './utils.js';
 import {handleTranslate, translateVocabWord} from './translate.js';
 import {doLogout} from './auth.js';
-import {handleFile, addText, deleteText, setTextLang, saveWord, startFc, answerFc, addTag, removeTag} from './actions.js';
+import {handleFile, addText, deleteText, setTextLang, saveWord, startFc, answerFc, addTag, removeTag, saveReadPos} from './actions.js';
 
 // Exponer a window lo que usan los onclick/onchange/oninput en línea del HTML generado
 Object.assign(window, {
@@ -16,7 +16,8 @@ Object.assign(window, {
   handleTranslate, translateVocabWord, saveWord,
   startFc, answerFc,
   exportCSV, speak, addTag, removeTag,
-  saveVoc, saveFc, saveLib
+  saveVoc, saveFc, saveLib,
+  saveReadPos
 });
 
 // Arranque (idéntico a la línea 173 del original)
