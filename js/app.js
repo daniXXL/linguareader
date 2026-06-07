@@ -1,6 +1,6 @@
 // js/app.js
 import {auth} from './config.js';
-import {S, setState, showToast} from './state.js';
+import {S, setState} from './state.js';
 import {render} from './views.js';
 import {loadAll, saveVoc, saveFc, saveLib} from './db.js';
 import {speak, exportCSV} from './utils.js';
@@ -10,7 +10,7 @@ import {handleFile, addText, deleteText, setTextLang, saveWord, startFc, answerF
 
 // Exponer a window lo que usan los onclick/onchange/oninput en línea del HTML generado
 Object.assign(window, {
-  S, setState, render, showToast,
+  S, setState, render,
   doLogout,
   handleFile, addText, deleteText, setTextLang,
   handleTranslate, translateVocabWord, saveWord,
