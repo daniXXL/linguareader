@@ -2,7 +2,7 @@
 import {LANGS, LEVELS, MAX_TEXT_BYTES} from './config.js';
 import {S, setState, showToast} from './state.js';
 import {saveLib, saveVoc, saveFc, saveStreak, savePositions, saveTxt, delTxt} from './db.js';
-import {sm2, detectLang, extractPdf, todayStr} from './utils.js';
+import {sm2, detectLang, extractPdf, todayStr, cleanDefs} from './utils.js';
 import {render} from './views.js';
 
 export async function handleFile(e){const f=e.target?.files?.[0];if(!f)return;setState({loading:true});try{let t='';if(f.name.toLowerCase().endsWith('.pdf'))t=await extractPdf(f);else t=await f.text();if(!t.trim()){alert('Sin texto');setState({loading:false});return}
@@ -15,7 +15,7 @@ export function deleteText(id){S.library=S.library.filter(i=>i.id!==id);delete S
 export function setTextLang(id,l){S.library=S.library.map(i=>i.id===id?{...i,language:l}:i);saveLib();render()}
 
 export function saveWord(text,level){const m=S.library.find(t=>t.id===S.currentTextId);const lang=m?.language||'en';const k=lang+':'+text.toLowerCase().trim();const ex=S.vocabulary[k]||{};const tr=S.popup?.translation;
-S.vocabulary[k]={...ex,word:text.trim(),language:lang,level,note:ex.note||(tr?.translation?tr.translation+(tr.definition?' — '+tr.definition:''):''),translation:tr?.translation||ex.translation||'',example:tr?.example||ex.example||'',exampleTranslation:tr?.exampleTranslation||ex.exampleTranslation||'',tags:ex.tags||[],sourceTextId:ex.sourceTextId||S.currentTextId,dateAdded:ex.dateAdded||new Date().toISOString(),dateModified:new Date().toISOString()};
+S.vocabulary[k]={...ex,word:text.trim(),language:lang,level,note:ex.note||'',definitions:(ex.definitions&&ex.definitions.length)?ex.definitions:cleanDefs(tr?.translation,tr?.definition),irregularForms:ex.irregularForms||[],translation:tr?.translation||ex.translation||'',example:tr?.example||ex.example||'',exampleTranslation:tr?.exampleTranslation||ex.exampleTranslation||'',tags:ex.tags||[],sourceTextId:ex.sourceTextId||S.currentTextId,dateAdded:ex.dateAdded||new Date().toISOString(),dateModified:new Date().toISOString()};
 saveVoc();if(level!=='learned'&&!S.flashcards[k]){S.flashcards[k]={easeFactor:2.5,interval:0,repetitions:0,nextReview:new Date().toISOString()};saveFc()}setState({popup:null})}
 
 export function recordStudy(){const today=todayStr();if(!S.streakHistory.includes(today)){S.streakHistory.push(today);saveStreak()}}

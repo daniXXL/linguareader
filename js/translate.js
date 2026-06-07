@@ -1,6 +1,7 @@
 // js/translate.js
 import {S, setState, showToast} from './state.js';
 import {saveCa, saveVoc} from './db.js';
+import {cleanDefs} from './utils.js';
 
 const LIMIT_MSG='Límite de traducción gratuito alcanzado por hoy. Intenta de nuevo mañana.';
 
@@ -10,4 +11,4 @@ if(!r.limit)cache[key]={translation:r.translation,definition:r.definition,exampl
 
 export async function handleTranslate(t){const m=S.library.find(x=>x.id===S.currentTextId);setState({translating:true});const r=await translateText(t,m?.language||'en',S.cache);if(r.limit){setState({translating:false});showToast(LIMIT_MSG,'error');return}saveCa();S.popup={...S.popup,translation:r,fromCache:r.fromCache};setState({translating:false})}
 
-export async function translateVocabWord(vocKey){const v=S.vocabulary[vocKey];if(!v)return;setState({translating:vocKey});const r=await translateText(v.word,v.language,S.cache);if(r.limit){setState({translating:false});showToast(LIMIT_MSG,'error');return}saveCa();v.translation=r.translation||v.translation;if(r.definition&&!v.note)v.note=r.definition;if(r.example&&!v.example)v.example=r.example;if(r.exampleTranslation&&!v.exampleTranslation)v.exampleTranslation=r.exampleTranslation;v.dateModified=new Date().toISOString();saveVoc();setState({translating:false})}
+export async function translateVocabWord(vocKey){const v=S.vocabulary[vocKey];if(!v)return;setState({translating:vocKey});const r=await translateText(v.word,v.language,S.cache);if(r.limit){setState({translating:false});showToast(LIMIT_MSG,'error');return}saveCa();v.translation=r.translation||v.translation;if(!v.definitions||!v.definitions.length)v.definitions=cleanDefs(r.translation||v.translation,r.definition);if(r.example&&!v.example)v.example=r.example;if(r.exampleTranslation&&!v.exampleTranslation)v.exampleTranslation=r.exampleTranslation;v.dateModified=new Date().toISOString();saveVoc();setState({translating:false})}
