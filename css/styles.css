@@ -4,7 +4,7 @@
   --border:#E4D9C5;
   --card-shadow:0 1px 2px rgba(74,52,28,.05),0 10px 26px -18px rgba(74,52,28,.22);
   --accent:#BC4A2B;--accent-hover:#98381E;
-  --green:#5B7A4F;--gold:#A8822E;
+  --green:#5B7A4F;--gold:#A8822E;/* reservados para Fase 5 (flashcards estilo Refold) */
   --display:'Fraunces',Georgia,'Times New Roman',serif;
   --reading:'Crimson Pro',Georgia,serif;
   --mono:'Spline Sans Mono',ui-monospace,SFMono-Regular,monospace;
@@ -29,6 +29,7 @@ body{font-family:var(--sans);background:var(--bg);min-height:100vh;overflow-x:hi
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 
 /* Display headings (Fraunces) — los h1/h2 ponen su font-family en linea (Task 3) */
+/* .kicker: etiqueta editorial reservada para usarse en vistas en fases siguientes */
 .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
 
 .card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);box-shadow:var(--card-shadow);padding:20px;transition:background .3s,border-color .3s}
