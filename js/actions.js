@@ -1,5 +1,5 @@
 // js/actions.js
-import {LANGS, LEVELS} from './config.js';
+import {LANGS, LEVELS, MAX_TEXT_BYTES} from './config.js';
 import {S, setState, showToast} from './state.js';
 import {saveLib, saveVoc, saveFc, saveStreak, savePositions, saveTxt, delTxt} from './db.js';
 import {sm2, detectLang, extractPdf, todayStr} from './utils.js';
@@ -8,7 +8,7 @@ import {render} from './views.js';
 export async function handleFile(e){const f=e.target?.files?.[0];if(!f)return;setState({loading:true});try{let t='';if(f.name.toLowerCase().endsWith('.pdf'))t=await extractPdf(f);else t=await f.text();if(!t.trim()){alert('Sin texto');setState({loading:false});return}
 addText(f.name.replace(/\.(pdf|txt|text)$/i,''),t)}catch(er){alert('Error: '+er.message);setState({loading:false})}e.target.value=''}
 
-export function addText(title,text){const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const preview=text.slice(0,150).replace(/\s+/g,' ');const words=text.split(/\s+/).filter(Boolean).length;const lang=detectLang(text);
+export function addText(title,text){if(new TextEncoder().encode(text).length>MAX_TEXT_BYTES){setState({loading:false});showToast('Este texto es demasiado grande para guardarse (máx. ~1 MB). Divídelo en partes más pequeñas.','error');return}const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const preview=text.slice(0,150).replace(/\s+/g,' ');const words=text.split(/\s+/).filter(Boolean).length;const lang=detectLang(text);
 S.library.unshift({id,title,preview,wordCount:words,dateAdded:new Date().toISOString(),language:lang});S.texts[id]=text;saveLib();saveTxt(id,text);setState({loading:false,currentTextId:id,view:'reader'});showToast(`"${title}" — ${words.toLocaleString()} palabras (${LANGS[lang]})`)}
 
 export function deleteText(id){S.library=S.library.filter(i=>i.id!==id);delete S.texts[id];saveLib();delTxt(id);if(S.currentTextId===id)S.currentTextId=null;setState({view:'library',confirmAction:null})}
