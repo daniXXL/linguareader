@@ -3,7 +3,7 @@ import {LANGS, LEVELS, I, SM2Q, SM2L} from './config.js';
 import {S, setState} from './state.js';
 import {getStreak, escapeHtml, cleanDefs} from './utils.js';
 import {doLogin, doRegister, doResetPassword} from './auth.js';
-import {getStats, getComprehension, getWeeklyData, getAllTags, wordStyle, saveReadPos, restoreReadPos, addTag} from './actions.js';
+import {getStats, getComprehension, getWeeklyData, getAllTags, wordStyle, saveReadPos, restoreReadPos, addTag, fcInterval} from './actions.js';
 import {resetReadAloud, readRateLabel} from './readaloud.js';
 
 // ══════ RENDER ══════
@@ -98,13 +98,14 @@ h+=`<div style="text-align:center;margin-bottom:16px;color:var(--text3);font-siz
 h+=`<div class="card" style="padding:0;overflow:hidden;animation:flipIn .3s"><div style="padding:${S.fcFlipped?'26px 24px 16px':'48px 30px'};min-height:220px;cursor:pointer" onclick="setState({fcFlipped:!S.fcFlipped})">`;
 if(!S.fcFlipped)h+=`<div style="text-align:center"><span class="tag" style="background:${LEVELS[vi.level]?.bg};color:${LEVELS[vi.level]?.color};margin-bottom:14px">${LANGS[vi.language]}</span><div style="font-size:40px;font-weight:400;font-family:'Fraunces',serif;letter-spacing:-.5px;margin:6px 0">${escapeHtml(vi.word)}</div><button class="btn-ghost btn-sm" onclick="event.stopPropagation();speak('${vi.word.replace(/'/g,"\\'")}','${vi.language}')">${I.vol} Escuchar</button><div style="color:var(--text4);font-size:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-top:14px">Toca para ver la respuesta</div></div>`;
 else{let defs=(vi.definitions&&vi.definitions.length)?vi.definitions:(vi.translation?cleanDefs(vi.translation,vi.note):[]);/* respaldo legacy: palabras antiguas guardaban la definicion en note y siempre tenian translation */
+const _w=(vi.word||'').toLowerCase().trim();defs=defs.filter(d=>{const x=(d==null?'':String(d)).trim();return x&&x.toLowerCase()!==_w});/* no mostrar la palabra misma como su definición */
 h+=`<div style="animation:fadeIn .3s"><div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px"><span style="font-size:34px;font-weight:400;font-family:'Fraunces',serif;letter-spacing:-.5px">${escapeHtml(vi.word)}</span><button class="audiobtn" onclick="event.stopPropagation();speak('${vi.word.replace(/'/g,"\\'")}','${vi.language}')" title="Escuchar palabra">${I.vol}</button></div>`;
 h+=`<div class="fc-divider"></div><div class="fc-label">definiciones</div>`;
 h+=defs.length?`<ul class="deflist">${defs.map(d=>`<li>${escapeHtml(d)}</li>`).join('')}</ul>`:`<div style="color:var(--text4);font-size:15px;font-family:var(--reading)">Sin definición — añádela con el lápiz en Vocabulario</div>`;
 if(vi.irregularForms&&vi.irregularForms.length)h+=`<div class="fc-divider"></div><div class="fc-label">formas irregulares</div><div class="pills">${vi.irregularForms.map(f=>`<span class="pill">${escapeHtml(f)}</span>`).join('')}</div>`;
 if(vi.example)h+=`<div class="fc-divider"></div><div class="fc-label">ejemplo</div><div class="ex-line"><span class="q">“${escapeHtml(vi.example)}”</span><button class="audiobtn sm" onclick="event.stopPropagation();speak('${(vi.example||'').replace(/'/g,"\\'")}','${vi.language}')" title="Escuchar frase">${I.vol}</button></div>${vi.exampleTranslation?`<div class="ex-tr">${escapeHtml(vi.exampleTranslation)}</div>`:''}`;
 h+=`</div>`}
-h+=`</div>${S.fcFlipped?`<div style="border-top:1px solid var(--border);padding:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;animation:slideUp .2s">${Object.entries(SM2Q).map(([k,q])=>`<button class="grade-btn" onclick="answerFc(${q})">${SM2L[k]}</button>`).join('')}</div>`:''}</div>`}}h+=`</div>`}
+h+=`</div>${S.fcFlipped?`<div style="border-top:1px solid var(--border);padding:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;animation:slideUp .2s">${Object.entries(SM2Q).map(([k,q])=>`<button class="grade-btn" onclick="answerFc(${q})">${SM2L[k]}<span class="grade-eta">${fcInterval(q)}</span></button>`).join('')}</div>`:''}</div>`}}h+=`</div>`}
 
 // ── DASHBOARD ──
 if(S.view==='dashboard'){const weekly=getWeeklyData();const maxVal=Math.max(...weekly.map(w=>w.added+w.learned),1);

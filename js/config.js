@@ -16,6 +16,8 @@ export const LANGS={en:"Inglés",pt:"Portugués",fr:"Francés",de:"Alemán"};
 export const LANG_VOICE={en:"en-US",pt:"pt-BR",fr:"fr-FR",de:"de-DE"};
 export const LEVELS={unknown:{label:"Desconocida",color:"#E8847C",bg:"#FDE8E5"},recognized:{label:"Reconozco",color:"#D4960A",bg:"#FEF3D1"},learned:{label:"Aprendida",color:"#4D8B52",bg:"#E2F0E3"}};
 export const SM2Q={again:0,hard:2,good:3,easy:5},SM2L={again:"No la sé",hard:"Difícil",good:"Regular",easy:"Fácil"},SM2C={again:"#E8847C",hard:"#D4960A",good:"#5B9BD5",easy:"#4D8B52"};
+// Umbral de "madurez" estilo Anki: una tarjeta con intervalo >= MATURE_DAYS días se marca "Aprendida".
+export const MATURE_DAYS=21;
 
 export const FP={en:["the","and","is","in","to","of","a","that","it","for","was","on","are","with"],pt:["de","que","e","o","a","do","da","em","um","para","é","com","não","uma"],fr:["de","la","le","et","les","des","en","un","une","du","est","que","qui","dans"],de:["der","die","und","in","den","von","zu","das","mit","sich","des","auf","für","ist"]};
 

@@ -1,8 +1,8 @@
 // js/actions.js
-import {LANGS, LEVELS, MAX_TEXT_BYTES} from './config.js';
+import {LANGS, LEVELS, MAX_TEXT_BYTES, MATURE_DAYS} from './config.js';
 import {S, setState, showToast} from './state.js';
 import {saveLib, saveVoc, saveFc, saveStreak, savePositions, saveTxt, delTxt} from './db.js';
-import {sm2, detectLang, extractPdf, todayStr, cleanDefs} from './utils.js';
+import {sm2, detectLang, extractPdf, todayStr, cleanDefs, fmtDays} from './utils.js';
 import {render} from './views.js';
 
 export async function handleFile(e){const f=e.target?.files?.[0];if(!f)return;setState({loading:true});try{let t='';if(f.name.toLowerCase().endsWith('.pdf'))t=await extractPdf(f);else t=await f.text();if(!t.trim()){alert('Sin texto');setState({loading:false});return}
@@ -20,10 +20,16 @@ saveVoc();if(level!=='learned'&&!S.flashcards[k]){S.flashcards[k]={easeFactor:2.
 
 export function recordStudy(){const today=todayStr();if(!S.streakHistory.includes(today)){S.streakHistory.push(today);saveStreak()}}
 
-export function startFc(mode){const m=mode||S.fcMode;const now=new Date();const deck=Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v||v.level==='learned')return false;if(S.fcLangFilter!=='all'&&v.language!==S.fcLangFilter)return false;if(m==='due'){const fc=S.flashcards[k];return!fc.nextReview||new Date(fc.nextReview)<=now}return true});deck.sort(()=>Math.random()-.5);setState({flashcardDeck:deck,fcIndex:0,fcFlipped:false,fcMode:m})}
+export function startFc(mode){const m=mode||S.fcMode;const now=new Date();const deck=Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v)return false;if(S.fcLangFilter!=='all'&&v.language!==S.fcLangFilter)return false;if(m==='due'){const fc=S.flashcards[k];return!fc.nextReview||new Date(fc.nextReview)<=now}return true});deck.sort(()=>Math.random()-.5);setState({flashcardDeck:deck,fcIndex:0,fcFlipped:false,fcMode:m})}
 
-export function answerFc(q){const k=S.flashcardDeck[S.fcIndex];S.flashcards[k]=sm2(S.flashcards[k]||{},q);saveFc();if(q>=3&&S.vocabulary[k]){S.vocabulary[k].level=q===5?'learned':'recognized';saveVoc()}recordStudy();
-if(S.fcIndex+1<S.flashcardDeck.length)setState({fcIndex:S.fcIndex+1,fcFlipped:false});else setState({flashcardDeck:[],fcFlipped:false})}
+// Etiqueta del próximo intervalo si se calificara con q (para mostrarlo en cada botón, estilo Anki).
+export function fcInterval(q){const k=S.flashcardDeck[S.fcIndex];if(!k)return'';if(q===0)return'ahora';return fmtDays(sm2(S.flashcards[k]||{},q).interval)}
+
+export function answerFc(q){const k=S.flashcardDeck[S.fcIndex];const fc=sm2(S.flashcards[k]||{},q);S.flashcards[k]=fc;saveFc();
+if(S.vocabulary[k]){const v=S.vocabulary[k];v.level=fc.interval>=MATURE_DAYS?'learned':(q===0?'unknown':'recognized');v.dateModified=new Date().toISOString();saveVoc()}
+recordStudy();
+const deck=S.flashcardDeck.slice();if(q===0)deck.push(k);// "No la sé": re-encolar para volver a verla en esta misma sesión
+if(S.fcIndex+1<deck.length)setState({flashcardDeck:deck,fcIndex:S.fcIndex+1,fcFlipped:false});else setState({flashcardDeck:[],fcFlipped:false})}
 
 export function wordStyle(w,l){const k=l+':'+w.toLowerCase().trim().replace(/[.,;:!?¿¡"""''()\[\]{}]/g,'');const v=S.vocabulary[k];if(!v)return'';return`background:${LEVELS[v.level]?.bg};border-radius:3px;padding:0 2px;`}
 
@@ -32,7 +38,7 @@ export function restoreReadPos(){const ra=document.getElementById('reader-area')
 
 export function cleanOrphanedFlashcards(){let cleaned=false;for(const k of Object.keys(S.flashcards)){if(!S.vocabulary[k]){delete S.flashcards[k];cleaned=true}}if(cleaned)saveFc()}
 
-export function getStats(){cleanOrphanedFlashcards();const it=Object.values(S.vocabulary);const now=new Date();return{total:it.length,unknown:it.filter(v=>v.level==='unknown').length,recognized:it.filter(v=>v.level==='recognized').length,learned:it.filter(v=>v.level==='learned').length,dueToday:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v||v.level==='learned')return false;const f=S.flashcards[k];return!f.nextReview||new Date(f.nextReview)<=now}).length,allCards:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];return v&&v.level!=='learned'}).length}}
+export function getStats(){cleanOrphanedFlashcards();const it=Object.values(S.vocabulary);const now=new Date();return{total:it.length,unknown:it.filter(v=>v.level==='unknown').length,recognized:it.filter(v=>v.level==='recognized').length,learned:it.filter(v=>v.level==='learned').length,dueToday:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v)return false;const f=S.flashcards[k];return!f.nextReview||new Date(f.nextReview)<=now}).length,allCards:Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];return !!v}).length}}
 
 export function getComprehension(textId){const text=S.texts[textId]||'';const meta=S.library.find(t=>t.id===textId);const lang=meta?.language||'en';const words=text.toLowerCase().replace(/[^a-záàâãéèêíïóôõöúüçñß\s'-]/g,'').split(/\s+/).filter(w=>w.length>1);if(!words.length)return{known:0,total:0,pct:0};const unique=new Set(words);let known=0;for(const w of unique){const k=lang+':'+w;if(S.vocabulary[k]&&(S.vocabulary[k].level==='recognized'||S.vocabulary[k].level==='learned'))known++}return{known,total:unique.size,pct:unique.size?Math.round(known/unique.size*100):0}}
 
