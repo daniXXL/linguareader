@@ -27,16 +27,19 @@ para login y datos. UI en español.
 `js/app.js` como `<script type="module">`. El CSS vive en `css/styles.css`. Toda la lógica
 está en módulos ES en `js/`:
 
-- `config.js` — init de Firebase (usa el global `firebase`), constantes (`LANGS`, `LEVELS`,
-  `SM2*`, `FP`) e iconos SVG (`I`).
+- `config.js` — init de Firebase (usa el global `firebase`), constantes (`LANGS`, `LANG_VOICE`,
+  `LEVELS`, `SM2*`, `MATURE_DAYS`, `MAX_TEXT_BYTES`, `FP`) e iconos SVG (`I`).
 - `state.js` — el objeto de estado global `S`, `setState`, `showToast`.
 - `db.js` — Firestore: rutas por usuario `users/{uid}/...`, guardado con debounce, `loadAll`.
-- `utils.js` — lógica pura: `sm2` (algoritmo SM-2), `detectLang`, `getStreak`, `extractPdf`,
-  `speak` (TTS), `exportCSV`, **`escapeHtml`**.
+- `utils.js` — lógica pura: `sm2` (programación de repaso estilo Anki, ver convención abajo),
+  `fmtDays` (formato de intervalo: minutos/días/meses), `detectLang`, `getStreak`, `extractPdf`,
+  `speak` (TTS), `exportCSV`, **`escapeHtml`**, `cleanDefs` (limpieza/dedup de definiciones).
 - `translate.js` — `translateText` (MyMemory + dictionaryapi.dev, con caché y manejo de límite).
 - `auth.js` — login/registro/logout.
 - `actions.js` — acciones de dominio y selectores (`addText`, `saveWord`, `startFc`, `answerFc`,
-  `getStats`, `getComprehension`, etc.).
+  `fcInterval`, `getStats`, `getComprehension`, etc.).
+- `readaloud.js` — lector en voz alta (read-along) frase por frase: resalta la frase actual y
+  avanza con TTS. `render()` llama a `resetReadAloud()` porque reconstruye el DOM del lector.
 - `views.js` — `render()` y `handleRI()`: construye todo el HTML como string y lo asigna a
   `innerHTML`. Aquí están todas las vistas.
 - `app.js` — punto de entrada: importa todo, **expone funciones y `S` en `window`**, registra
@@ -66,6 +69,15 @@ está en módulos ES en `js/`:
 - **Modelo de datos:** Firestore aísla por usuario (reglas: `request.auth.uid == userId`). El
   vocabulario se indexa por clave `idioma:palabra` (p. ej. `en:have`). Las flashcards comparten
   esa misma clave. Cada texto se guarda como un documento (límite ~1 MB; hay guarda en `addText`).
+- **Repaso estilo Anki (`sm2` en utils.js):** la flashcard guarda `{easeFactor, interval,
+  repetitions, nextReview}`; `interval` está en **días pero puede ser fracción** (los pasos de
+  aprendizaje son minutos). Cartas en aprendizaje (`repetitions<2`) usan pasos cortos
+  (Difícil 5-10 min, Regular 10 min → 1 día, Fácil gradúa a días); al graduarse pasan a la fase
+  multiplicativa. Invariante: el intervalo crece en orden **No la sé ≤ Difícil ≤ Regular ≤ Fácil**
+  (si tocas esta función, mantenlo). Solo "No la sé" (q=0) reinicia, y `answerFc` la **re-encola
+  en la misma sesión**. El nivel `learned` = "madura" se asigna solo cuando `interval >=
+  MATURE_DAYS` (21); el mazo (`startFc`/`getStats`) ya **no** excluye las maduras. `fcInterval(q)`
+  calcula la etiqueta del próximo intervalo que se muestra bajo cada botón de calificación.
 
 ## Flujo de trabajo del proyecto
 
@@ -74,8 +86,11 @@ El trabajo está organizado por fases con specs y planes en `docs/superpowers/`:
 - Planes de implementación: `docs/superpowers/plans/`
 - Mockup visual de referencia: `docs/mockups/editorial-mockup.html`
 
-Hechas: Fase 1 (refactor a módulos), Fase 2 (seguridad: XSS, límite de traducción, textos
-grandes), Fase 3 (rediseño editorial). Pendientes/parciales: Fase 4 (lector con audio
-read-along), Fase 5 (flashcards Refold: captura de definiciones/formas irregulares + audio),
-Fase 6 (afinar SM-2 al estilo Anki). Cada fase: rama propia → verificación en navegador → unir
-a `main`.
+**Las 6 fases están completas y publicadas:** Fase 1 (refactor a módulos), Fase 2 (seguridad:
+XSS, límite de traducción, textos grandes), Fase 3 (rediseño editorial), Fase 4 (lector con audio
+read-along — `readaloud.js`), Fase 5 (flashcards Refold: definiciones/formas irregulares + audio),
+Fase 6 (repaso estilo Anki — pasos de aprendizaje, orden garantizado, tiempos por botón,
+"Aprendida"=madura). Cada fase: rama propia → revisión → verificación en navegador → unir a `main`.
+
+Si hay trabajo nuevo, sigue el mismo flujo (spec en `specs/`, plan en `plans/`, rama, verificación
+en navegador por el usuario antes de unir a `main`).
