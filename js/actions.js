@@ -1,5 +1,5 @@
 // js/actions.js
-import {LANGS, LEVELS, MAX_TEXT_BYTES} from './config.js';
+import {LANGS, LEVELS, MAX_TEXT_BYTES, MATURE_DAYS} from './config.js';
 import {S, setState, showToast} from './state.js';
 import {saveLib, saveVoc, saveFc, saveStreak, savePositions, saveTxt, delTxt} from './db.js';
 import {sm2, detectLang, extractPdf, todayStr, cleanDefs} from './utils.js';
@@ -22,7 +22,9 @@ export function recordStudy(){const today=todayStr();if(!S.streakHistory.include
 
 export function startFc(mode){const m=mode||S.fcMode;const now=new Date();const deck=Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v||v.level==='learned')return false;if(S.fcLangFilter!=='all'&&v.language!==S.fcLangFilter)return false;if(m==='due'){const fc=S.flashcards[k];return!fc.nextReview||new Date(fc.nextReview)<=now}return true});deck.sort(()=>Math.random()-.5);setState({flashcardDeck:deck,fcIndex:0,fcFlipped:false,fcMode:m})}
 
-export function answerFc(q){const k=S.flashcardDeck[S.fcIndex];S.flashcards[k]=sm2(S.flashcards[k]||{},q);saveFc();if(q>=3&&S.vocabulary[k]){S.vocabulary[k].level=q===5?'learned':'recognized';saveVoc()}recordStudy();
+export function answerFc(q){const k=S.flashcardDeck[S.fcIndex];const fc=sm2(S.flashcards[k]||{},q);S.flashcards[k]=fc;saveFc();
+if(S.vocabulary[k]){const v=S.vocabulary[k];v.level=fc.interval>=MATURE_DAYS?'learned':(q===0?'unknown':'recognized');v.dateModified=new Date().toISOString();saveVoc()}
+recordStudy();
 if(S.fcIndex+1<S.flashcardDeck.length)setState({fcIndex:S.fcIndex+1,fcFlipped:false});else setState({flashcardDeck:[],fcFlipped:false})}
 
 export function wordStyle(w,l){const k=l+':'+w.toLowerCase().trim().replace(/[.,;:!?¿¡"""''()\[\]{}]/g,'');const v=S.vocabulary[k];if(!v)return'';return`background:${LEVELS[v.level]?.bg};border-radius:3px;padding:0 2px;`}
