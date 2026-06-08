@@ -49,7 +49,7 @@ export function stopReadAloud(){
 export function cycleReadRate(){
   raRate=RATES[(RATES.indexOf(raRate)+1)%RATES.length];
   const b=document.getElementById('ra-rate');if(b)b.textContent=raRate+'×';
-  if(raPlaying){window.speechSynthesis.cancel();speakCurrent()}
+  if(raPlaying){raGen++;window.speechSynthesis.cancel();speakCurrent()}
 }
 
 // Se llama en cada render(): corta el audio porque el DOM del lector se reconstruye.
