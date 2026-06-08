@@ -1,5 +1,5 @@
 // js/readaloud.js — lectura en voz alta (read-along) frase por frase
-import {S, setState} from './state.js';
+import {S} from './state.js';
 import {LANG_VOICE, I} from './config.js';
 import {savePositions} from './db.js';
 
@@ -33,27 +33,26 @@ function speakCurrent(){
   window.speechSynthesis.speak(u);
 }
 
-// Arranca a hablar tras un respiro, para evitar el bug de Chrome (cancel()+speak() inmediato se traga el audio).
-function speakSoon(){const g=raGen;setTimeout(()=>{if(raPlaying&&g===raGen)speakCurrent()},90)}
-
 export function toggleReadAloud(){
   if(!window.speechSynthesis)return;
   if(raPlaying){raPlaying=false;raGen++;window.speechSynthesis.cancel();persistPos();setToggleIcon();return}
   const els=sentEls();
   if(!els.length)return;
   if(raIdx>=els.length)raIdx=0;
-  raPlaying=true;raGen++;setToggleIcon();
+  raPlaying=true;setToggleIcon();
   window.speechSynthesis.cancel();
-  speakSoon();
+  speakCurrent();
 }
 
 // Empezar a leer desde una frase concreta (botón "Leer desde aquí" del popup de palabra).
+// Cierra el popup SIN re-render para no cancelar el audio ni perder el gesto del clic.
 export function startReadAloudAt(si){
-  setState({popup:null});           // cierra el popup; esto re-renderiza (resetReadAloud corre aquí)
   if(!window.speechSynthesis)return;
-  raIdx=si;raPlaying=true;raGen++;persistPos();setToggleIcon();
+  S.popup=null;
+  const ov=document.querySelector('.overlay');if(ov)ov.remove();
+  raIdx=si;raPlaying=true;persistPos();setToggleIcon();
   window.speechSynthesis.cancel();
-  speakSoon();
+  speakCurrent();
 }
 
 export function stopReadAloud(){
@@ -65,7 +64,7 @@ export function stopReadAloud(){
 export function cycleReadRate(){
   raRate=RATES[(RATES.indexOf(raRate)+1)%RATES.length];
   const b=document.getElementById('ra-rate');if(b)b.textContent=raRate+'×';
-  if(raPlaying){raGen++;window.speechSynthesis.cancel();speakSoon();}
+  if(raPlaying){raGen++;window.speechSynthesis.cancel();speakCurrent();}
 }
 
 // Se llama en cada render(): corta el audio (el DOM del lector se reconstruye) y restaura raIdx
