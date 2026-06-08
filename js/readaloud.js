@@ -12,7 +12,7 @@ function sentEls(){const ra=document.getElementById('reader-area');return ra?Arr
 function clearHi(els){for(const e of els)e.classList.remove('ra-active')}
 function setToggleIcon(){const b=document.getElementById('ra-toggle');if(b)b.innerHTML=raPlaying?I.pause:I.play}
 // La posición se guarda por texto (persistida) y es la ÚNICA fuente de verdad para continuar.
-function persistPos(){if(raTextId!=null){S.audioPositions[raTextId]=raIdx;savePositions()}}
+function persistPos(){if(raTextId==null)return;if(!S.audioPositions)S.audioPositions={};S.audioPositions[raTextId]=raIdx;savePositions()}
 
 function speakCurrent(){
   if(!window.speechSynthesis)return;
