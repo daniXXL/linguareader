@@ -11,7 +11,7 @@ export function readRateLabel(){return raRate+'×'}
 function sentEls(){const ra=document.getElementById('reader-area');return ra?Array.from(ra.querySelectorAll('.ra-sent')):[]}
 function clearHi(els){for(const e of els)e.classList.remove('ra-active')}
 function setToggleIcon(){const b=document.getElementById('ra-toggle');if(b)b.innerHTML=raPlaying?I.pause:I.play}
-// Recuerda por dónde va el audio de este texto (persistido, para continuar incluso entre sesiones).
+// La posición se guarda por texto (persistida) y es la ÚNICA fuente de verdad para continuar.
 function persistPos(){if(raTextId!=null){S.audioPositions[raTextId]=raIdx;savePositions()}}
 
 function speakCurrent(){
@@ -33,24 +33,27 @@ function speakCurrent(){
   window.speechSynthesis.speak(u);
 }
 
+// Arranca a hablar tras un respiro, para evitar el bug de Chrome (cancel()+speak() inmediato se traga el audio).
+function speakSoon(){const g=raGen;setTimeout(()=>{if(raPlaying&&g===raGen)speakCurrent()},90)}
+
 export function toggleReadAloud(){
   if(!window.speechSynthesis)return;
   if(raPlaying){raPlaying=false;raGen++;window.speechSynthesis.cancel();persistPos();setToggleIcon();return}
   const els=sentEls();
   if(!els.length)return;
   if(raIdx>=els.length)raIdx=0;
-  raPlaying=true;setToggleIcon();
+  raPlaying=true;raGen++;setToggleIcon();
   window.speechSynthesis.cancel();
-  speakCurrent();
+  speakSoon();
 }
 
 // Empezar a leer desde una frase concreta (botón "Leer desde aquí" del popup de palabra).
 export function startReadAloudAt(si){
   setState({popup:null});           // cierra el popup; esto re-renderiza (resetReadAloud corre aquí)
   if(!window.speechSynthesis)return;
-  raIdx=si;raPlaying=true;setToggleIcon();
+  raIdx=si;raPlaying=true;raGen++;persistPos();setToggleIcon();
   window.speechSynthesis.cancel();
-  speakCurrent();
+  speakSoon();
 }
 
 export function stopReadAloud(){
@@ -62,18 +65,14 @@ export function stopReadAloud(){
 export function cycleReadRate(){
   raRate=RATES[(RATES.indexOf(raRate)+1)%RATES.length];
   const b=document.getElementById('ra-rate');if(b)b.textContent=raRate+'×';
-  if(raPlaying){raGen++;window.speechSynthesis.cancel();speakCurrent()}
+  if(raPlaying){raGen++;window.speechSynthesis.cancel();speakSoon();}
 }
 
-// Se llama en cada render(): corta el audio porque el DOM del lector se reconstruye, pero
-// CONSERVA la posición (raIdx) para poder continuar. Solo al cambiar de texto retoma la
-// posición guardada de ese texto (o el principio si no hay).
+// Se llama en cada render(): corta el audio (el DOM del lector se reconstruye) y restaura raIdx
+// desde la posición guardada del texto actual. Así "continuar" es a prueba de balas entre renders.
 export function resetReadAloud(){
   raPlaying=false;raGen++;
   if(window.speechSynthesis)window.speechSynthesis.cancel();
-  const tid=S.currentTextId;
-  if(tid!==raTextId){
-    raTextId=tid;
-    raIdx=(tid!=null&&S.audioPositions&&S.audioPositions[tid]!=null)?S.audioPositions[tid]:0;
-  }
+  raTextId=S.currentTextId;
+  raIdx=(raTextId!=null&&S.audioPositions&&S.audioPositions[raTextId]!=null)?S.audioPositions[raTextId]:0;
 }
