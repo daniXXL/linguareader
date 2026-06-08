@@ -46,6 +46,9 @@ paste:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" strok
 cursor:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 8-6 2-4 6z"/></svg>`,
 hand:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 00-4 0v1M14 10V4a2 2 0 00-4 0v6M10 10V5a2 2 0 00-4 0v9l-1.8-1.8a2 2 0 00-2.8 2.8L7 21h10l3-8v-2a2 2 0 00-4 0v1"/></svg>`,
 tag:`<svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+play:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+pause:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>`,
+stop:`<svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>`,
 };
 
 export const MAX_TEXT_BYTES=1000000; // ~1 MB; bajo el tope de 1.048.576 B por documento de Firestore

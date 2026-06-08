@@ -7,6 +7,7 @@ import {speak, exportCSV} from './utils.js';
 import {handleTranslate, translateVocabWord} from './translate.js';
 import {doLogout} from './auth.js';
 import {handleFile, addText, deleteText, setTextLang, saveWord, startFc, answerFc, addTag, removeTag, saveReadPos, addDefinition, removeDefinition, addIrregular, removeIrregular} from './actions.js';
+import {toggleReadAloud, stopReadAloud, cycleReadRate} from './readaloud.js';
 
 // Exponer a window lo que usan los onclick/onchange/oninput en línea del HTML generado
 Object.assign(window, {
@@ -19,7 +20,8 @@ Object.assign(window, {
   saveVoc, saveFc, saveLib,
   saveReadPos,
   addDefinition, removeDefinition,
-  addIrregular, removeIrregular
+  addIrregular, removeIrregular,
+  toggleReadAloud, stopReadAloud, cycleReadRate
 });
 
 // Arranque (idéntico a la línea 173 del original)
