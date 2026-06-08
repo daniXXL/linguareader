@@ -2,7 +2,7 @@
 import {LANGS, LEVELS, MAX_TEXT_BYTES, MATURE_DAYS} from './config.js';
 import {S, setState, showToast} from './state.js';
 import {saveLib, saveVoc, saveFc, saveStreak, savePositions, saveTxt, delTxt} from './db.js';
-import {sm2, detectLang, extractPdf, todayStr, cleanDefs} from './utils.js';
+import {sm2, detectLang, extractPdf, todayStr, cleanDefs, fmtDays} from './utils.js';
 import {render} from './views.js';
 
 export async function handleFile(e){const f=e.target?.files?.[0];if(!f)return;setState({loading:true});try{let t='';if(f.name.toLowerCase().endsWith('.pdf'))t=await extractPdf(f);else t=await f.text();if(!t.trim()){alert('Sin texto');setState({loading:false});return}
@@ -22,10 +22,14 @@ export function recordStudy(){const today=todayStr();if(!S.streakHistory.include
 
 export function startFc(mode){const m=mode||S.fcMode;const now=new Date();const deck=Object.keys(S.flashcards).filter(k=>{const v=S.vocabulary[k];if(!v)return false;if(S.fcLangFilter!=='all'&&v.language!==S.fcLangFilter)return false;if(m==='due'){const fc=S.flashcards[k];return!fc.nextReview||new Date(fc.nextReview)<=now}return true});deck.sort(()=>Math.random()-.5);setState({flashcardDeck:deck,fcIndex:0,fcFlipped:false,fcMode:m})}
 
+// Etiqueta del próximo intervalo si se calificara con q (para mostrarlo en cada botón, estilo Anki).
+export function fcInterval(q){const k=S.flashcardDeck[S.fcIndex];if(!k)return'';if(q===0)return'ahora';return fmtDays(sm2(S.flashcards[k]||{},q).interval)}
+
 export function answerFc(q){const k=S.flashcardDeck[S.fcIndex];const fc=sm2(S.flashcards[k]||{},q);S.flashcards[k]=fc;saveFc();
 if(S.vocabulary[k]){const v=S.vocabulary[k];v.level=fc.interval>=MATURE_DAYS?'learned':(q===0?'unknown':'recognized');v.dateModified=new Date().toISOString();saveVoc()}
 recordStudy();
-if(S.fcIndex+1<S.flashcardDeck.length)setState({fcIndex:S.fcIndex+1,fcFlipped:false});else setState({flashcardDeck:[],fcFlipped:false})}
+const deck=S.flashcardDeck.slice();if(q===0)deck.push(k);// "No la sé": re-encolar para volver a verla en esta misma sesión
+if(S.fcIndex+1<deck.length)setState({flashcardDeck:deck,fcIndex:S.fcIndex+1,fcFlipped:false});else setState({flashcardDeck:[],fcFlipped:false})}
 
 export function wordStyle(w,l){const k=l+':'+w.toLowerCase().trim().replace(/[.,;:!?¿¡"""''()\[\]{}]/g,'');const v=S.vocabulary[k];if(!v)return'';return`background:${LEVELS[v.level]?.bg};border-radius:3px;padding:0 2px;`}
 

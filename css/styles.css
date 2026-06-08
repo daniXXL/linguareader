@@ -95,8 +95,9 @@ main{flex:1;padding:20px 16px;max-width:820px;margin:0 auto;width:100%;padding-b
 .ex-line{display:flex;align-items:flex-start;gap:10px}
 .ex-line .q{font-family:var(--reading);font-style:italic;font-size:18px;line-height:1.5;flex:1;color:var(--text)}
 .ex-tr{font-family:var(--reading);font-size:16px;color:var(--text3);font-style:italic;margin-top:8px}
-.grade-btn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--text);background:none;color:var(--text);padding:11px 16px;border-radius:4px;cursor:pointer;transition:all .2s;flex:1 1 0;max-width:130px}
+.grade-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--text);background:none;color:var(--text);padding:9px 14px;border-radius:4px;cursor:pointer;transition:all .2s;flex:1 1 0;max-width:130px}
 .grade-btn:hover{background:var(--text);color:var(--bg2);transform:translateY(-2px)}
+.grade-eta{font-size:10px;letter-spacing:0;text-transform:none;opacity:.6;font-weight:400}
 /* Read-along (Fase 4) */
 .ra-sent{transition:background .2s,box-shadow .2s}
 .ra-sent.ra-active{background:rgba(188,74,43,.14);border-radius:4px;box-shadow:0 0 0 4px rgba(188,74,43,.14)}

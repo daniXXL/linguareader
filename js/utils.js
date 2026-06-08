@@ -17,6 +17,8 @@ export function sm2(c,q){
   return{easeFactor:e,interval:i,repetitions:r,nextReview:n.toISOString()};
 }
 
+export function fmtDays(d){if(d<1)return'ahora';if(d===1)return'1 día';if(d<30)return d+' días';if(d<365){const m=Math.round(d/30);return'~'+m+(m===1?' mes':' meses')}const y=Math.round(d/365);return'~'+y+(y===1?' año':' años')}
+
 export function detectLang(t){const w=t.toLowerCase().replace(/[^a-záàâãéèêíïóôõöúüçñß\s'-]/g,"").split(/\s+/).filter(x=>x.length>0);if(w.length<10)return"en";const s=w.slice(0,500),sc={};for(const[l,f]of Object.entries(FP)){const st=new Set(f);sc[l]=s.filter(x=>st.has(x)).length}const b=Object.entries(sc).sort((a,b)=>b[1]-a[1]);return b[0][1]===0?"en":b[0][0]}
 
 export async function extractPdf(file){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const b=await file.arrayBuffer(),p=await pdfjsLib.getDocument({data:b}).promise;let t='';for(let i=1;i<=p.numPages;i++){const pg=await p.getPage(i),c=await pg.getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n\n'}return t.trim()}

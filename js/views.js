@@ -3,7 +3,7 @@ import {LANGS, LEVELS, I, SM2Q, SM2L} from './config.js';
 import {S, setState} from './state.js';
 import {getStreak, escapeHtml, cleanDefs} from './utils.js';
 import {doLogin, doRegister, doResetPassword} from './auth.js';
-import {getStats, getComprehension, getWeeklyData, getAllTags, wordStyle, saveReadPos, restoreReadPos, addTag} from './actions.js';
+import {getStats, getComprehension, getWeeklyData, getAllTags, wordStyle, saveReadPos, restoreReadPos, addTag, fcInterval} from './actions.js';
 import {resetReadAloud, readRateLabel} from './readaloud.js';
 
 // ══════ RENDER ══════
@@ -104,7 +104,7 @@ h+=defs.length?`<ul class="deflist">${defs.map(d=>`<li>${escapeHtml(d)}</li>`).j
 if(vi.irregularForms&&vi.irregularForms.length)h+=`<div class="fc-divider"></div><div class="fc-label">formas irregulares</div><div class="pills">${vi.irregularForms.map(f=>`<span class="pill">${escapeHtml(f)}</span>`).join('')}</div>`;
 if(vi.example)h+=`<div class="fc-divider"></div><div class="fc-label">ejemplo</div><div class="ex-line"><span class="q">“${escapeHtml(vi.example)}”</span><button class="audiobtn sm" onclick="event.stopPropagation();speak('${(vi.example||'').replace(/'/g,"\\'")}','${vi.language}')" title="Escuchar frase">${I.vol}</button></div>${vi.exampleTranslation?`<div class="ex-tr">${escapeHtml(vi.exampleTranslation)}</div>`:''}`;
 h+=`</div>`}
-h+=`</div>${S.fcFlipped?`<div style="border-top:1px solid var(--border);padding:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;animation:slideUp .2s">${Object.entries(SM2Q).map(([k,q])=>`<button class="grade-btn" onclick="answerFc(${q})">${SM2L[k]}</button>`).join('')}</div>`:''}</div>`}}h+=`</div>`}
+h+=`</div>${S.fcFlipped?`<div style="border-top:1px solid var(--border);padding:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;animation:slideUp .2s">${Object.entries(SM2Q).map(([k,q])=>`<button class="grade-btn" onclick="answerFc(${q})">${SM2L[k]}<span class="grade-eta">${fcInterval(q)}</span></button>`).join('')}</div>`:''}</div>`}}h+=`</div>`}
 
 // ── DASHBOARD ──
 if(S.view==='dashboard'){const weekly=getWeeklyData();const maxVal=Math.max(...weekly.map(w=>w.added+w.learned),1);
