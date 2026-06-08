@@ -2,22 +2,29 @@
 import {FP, LANGS, LEVELS, LANG_VOICE} from './config.js';
 import {S, showToast} from './state.js';
 
+// Programación estilo Anki. Cartas en aprendizaje (repetitions<2) usan pasos cortos en minutos;
+// al graduarse pasan a la fase de repaso multiplicativa. El intervalo (i) está en días (puede ser
+// fracción para los pasos en minutos). Garantiza orden: No la sé ≤ Difícil ≤ Regular ≤ Fácil.
 export function sm2(c,q){
+  const MIN=1/1440;
   let{easeFactor:e=2.5,interval:i=0,repetitions:r=0}=c;
-  if(q===0){            // No la sé — reinicia (relearning)
-    r=0;i=1;e=Math.max(1.3,e-0.2);
-  }else if(q===2){      // Difícil — no reinicia, intervalo corto
-    i=i<1?1:Math.max(i+1,Math.round(i*1.2));r++;e=Math.max(1.3,e-0.15);
-  }else if(q===5){      // Fácil — bonus, permanece en el mazo
-    i=r===0?4:Math.round((r===1?6:i*e)*1.3);r++;e=e+0.15;
-  }else{                // Regular — avance SM-2 clásico
-    i=r===0?1:r===1?6:Math.round(i*e);r++;
+  if(q===0){                       // No la sé → relearning: vuelve enseguida (en la sesión)
+    i=MIN;r=0;e=Math.max(1.3,e-0.2);
+  }else if(r<2){                    // Aprendizaje: pasos cortos, solo "Fácil" gradúa a días
+    if(q===2){i=(r===0?5:10)*MIN;e=Math.max(1.3,e-0.15);}       // Difícil: 5-10 min (no gradúa)
+    else if(q===3){if(r===0){i=10*MIN;r=1;}else{i=1;r=2;}}      // Regular: 10 min → gradúa a 1 día
+    else{i=(r===0?1:4);r=2;e=e+0.15;}                           // Fácil: gradúa (1 día, o 4)
+  }else{                            // Repaso: i siempre crece; 1.2 ≤ ease ≤ ease·1.3
+    if(q===2){i=Math.round(i*1.2);e=Math.max(1.3,e-0.15);}
+    else if(q===5){i=Math.round(i*e*1.3);e=e+0.15;}
+    else{i=Math.round(i*e);}
+    r++;
   }
-  const n=new Date;n.setDate(n.getDate()+i);
+  const n=new Date;n.setTime(n.getTime()+i*86400000);
   return{easeFactor:e,interval:i,repetitions:r,nextReview:n.toISOString()};
 }
 
-export function fmtDays(d){if(d<1)return'ahora';if(d===1)return'1 día';if(d<30)return d+' días';if(d<365){const m=Math.round(d/30);return'~'+m+(m===1?' mes':' meses')}const y=Math.round(d/365);return'~'+y+(y===1?' año':' años')}
+export function fmtDays(d){if(d<1){const m=Math.round(d*1440);if(m<1)return'<1 min';if(m<60)return m+' min';return Math.round(d*24)+' h'}const dd=Math.round(d);if(dd<=1)return'1 día';if(dd<30)return dd+' días';if(dd<365){const m=Math.round(dd/30);return'~'+m+(m===1?' mes':' meses')}const y=Math.round(dd/365);return'~'+y+(y===1?' año':' años')}
 
 export function detectLang(t){const w=t.toLowerCase().replace(/[^a-záàâãéèêíïóôõöúüçñß\s'-]/g,"").split(/\s+/).filter(x=>x.length>0);if(w.length<10)return"en";const s=w.slice(0,500),sc={};for(const[l,f]of Object.entries(FP)){const st=new Set(f);sc[l]=s.filter(x=>st.has(x)).length}const b=Object.entries(sc).sort((a,b)=>b[1]-a[1]);return b[0][1]===0?"en":b[0][0]}
 
